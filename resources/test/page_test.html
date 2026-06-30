@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ferretería Abad — Panel de Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Inter', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        canvas: '#f8fafc',
+                        'canvas-alt': '#f1f5f9',
+                        surface: '#ffffff',
+                        line: '#e2e8f0',
+                        'line-strong': '#cbd5e1',
+                        ink: '#0f172a',
+                        'ink-soft': '#475569',
+                        muted: '#94a3b8',
+                        'on-accent': '#ffffff',
+                        accent: '#2563eb',
+                        'accent-hover': '#1d4ed8',
+                        'accent-soft': '#eff6ff',
+                        'accent-ring': '#3b82f6',
+                        'stock-ok': '#15803d',
+                        'stock-ok-bg': '#f0fdf4',
+                        'stock-low': '#b45309',
+                        'stock-low-bg': '#fffbeb',
+                        'stock-out': '#b91c1c',
+                        'stock-out-bg': '#fef2f2',
+                        'stock-neutral': '#475569',
+                        'stock-neutral-bg': '#f1f5f9',
+                        price: '#0f172a',
+                        'price-sale': '#15803d',
+                        'price-prev': '#94a3b8',
+                        success: '#15803d',
+                        'success-bg': '#f0fdf4',
+                        warning: '#b45309',
+                        'warning-bg': '#fffbeb',
+                        danger: '#b91c1c',
+                        'danger-bg': '#fef2f2',
+                        info: '#1d4ed8',
+                        'info-bg': '#eff6ff',
+                    },
+                    spacing: {
+                        xs: '4px',
+                        sm: '8px',
+                        md: '16px',
+                        lg: '24px',
+                        xl: '32px',
+                        navbar: '56px',
+                        sidebar: '240px',
+                    },
+                    borderRadius: {
+                        md: '8px',
+                        lg: '12px',
+                    },
+                    boxShadow: {
+                        card: '0 1px 3px rgba(15,23,42,0.08)',
+                        elevated: '0 4px 12px rgba(15,23,42,0.10)',
+                    },
+                    maxWidth: {
+                        container: '1440px',
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        /* @layer base – reset y tipografía base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            color: #1d4ed8;
+        }
+
+        /* @layer components – solo clases que JS togglea dinámicamente */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.10);
+            z-index: 999;
+            max-width: 400px;
+            transition: opacity 0.15s ease;
+        }
+        .toast-info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .toast-success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .toast-warning {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+        .toast-danger {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        /* Sidebar link con animación de transición */
+        .sidebar-link {
+            transition: all 0.2s ease;
+            border-right: 3px solid transparent;
+        }
+        .sidebar-link.active {
+            background: #eff6ff;
+            color: #2563eb;
+            border-right-color: #2563eb;
+        }
+        .sidebar-link:hover:not(.active) {
+            background: #f1f5f9;
+        }
+
+        /* Utilidades adicionales */
+        .truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Animación de sidebar (collapse) */
+        .sidebar-collapsed .sidebar {
+            width: 64px;
+        }
+        .sidebar-collapsed .sidebar-text {
+            display: none;
+        }
+        .sidebar-collapsed .sidebar-icon-only {
+            display: flex;
+        }
+        .sidebar-icon-only {
+            display: none;
+        }
+        .sidebar {
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+        .sidebar-content {
+            transition: opacity 0.2s ease;
+        }
+        .sidebar-collapsed .sidebar-content {
+            opacity: 0;
+        }
+
+        /* Animación de entrada para tarjetas de productos */
+        .product-card {
+            transition: all 0.2s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.10);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layout principal -->
+    <div class="min-h-screen flex" id="app">
+
+        <!-- SIDEBAR con animación -->
+        <aside class="sidebar bg-canvas-alt border-r border-line h-screen sticky top-0 flex-shrink-0 overflow-y-auto" id="sidebar">
+            <div class="p-md border-b border-line flex items-center justify-between">
+                <div class="flex items-center gap-sm">
+                    <svg class="w-6 h-6 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span class="sidebar-text text-lg font-bold text-ink tracking-tight">Abad</span>
+                </div>
+                <button id="sidebarToggle" class="text-muted hover:text-ink transition-colors p-sm rounded-md hover:bg-canvas">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="p-sm">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="sidebar-link active block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="dashboard">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                            <span class="sidebar-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="inventory">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <span class="sidebar-text">Inventario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="products">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                            <span class="sidebar-text">Productos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="sales">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="sidebar-text">Ventas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="orders">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span class="sidebar-text">Órdenes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="clients">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <span class="sidebar-text">Clientes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-link block px-md py-sm rounded-md text-sm font-medium text-ink-soft flex items-center gap-sm" data-page="settings">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span class="sidebar-text">Ajustes</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-md border-t border-line bg-canvas-alt">
+                <div class="flex items-center gap-sm text-sm text-ink-soft">
+                    <span class="w-8 h-8 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold flex-shrink-0">JA</span>
+                    <div class="sidebar-text">
+                        <p class="font-medium text-ink">Juan Abad</p>
+                        <p class="text-xs text-muted">juan@abad.com</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido principal -->
+        <div class="flex-1 min-w-0">
+
+            <!-- TOPBAR -->
+            <header class="h-navbar bg-surface border-b border-line px-lg flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-md">
+                    <span class="text-ink font-semibold text-sm" id="pageTitle">Panel de Control</span>
+                    <span class="text-xs text-muted bg-canvas-alt px-sm py-xs rounded-md">v0.1.0</span>
+                </div>
+                <div class="flex items-center gap-sm">
+                    <button class="text-ink-soft hover:text-ink transition-colors p-sm rounded-md hover:bg-canvas-alt">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                    </button>
+                    <span class="w-8 h-8 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold text-sm">JA</span>
+                </div>
+            </header>
+
+            <!-- MAIN -->
+            <main class="p-lg max-w-container mx-auto" id="mainContent">
+
+                <!-- ====== DASHBOARD PAGE ====== -->
+                <div id="page-dashboard" class="page-content">
+
+                    <!-- Alertas -->
+                    <div class="flex flex-wrap gap-sm mb-lg">
+                        <div class="flex-1 min-w-[200px] bg-info-bg border border-blue-200 rounded-md px-md py-sm text-sm text-info flex items-center gap-sm">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Actualización de stock disponible.
+                        </div>
+                        <div class="flex-1 min-w-[200px] bg-success-bg border border-green-200 rounded-md px-md py-sm text-sm text-success flex items-center gap-sm">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Orden #1289 completada.
+                        </div>
+                        <div class="flex-1 min-w-[200px] bg-warning-bg border border-amber-200 rounded-md px-md py-sm text-sm text-warning flex items-center gap-sm">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            Stock bajo en 3 productos.
+                        </div>
+                        <div class="flex-1 min-w-[200px] bg-danger-bg border border-red-200 rounded-md px-md py-sm text-sm text-danger flex items-center gap-sm">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Error al sincronizar proveedor.
+                        </div>
+                    </div>
+
+                    <!-- Cards estadísticas -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+                        <div class="bg-surface shadow-card rounded-lg p-md border border-line">
+                            <p class="text-xs text-muted uppercase tracking-wide">Productos</p>
+                            <p class="text-2xl font-bold text-ink">1,284</p>
+                            <p class="text-xs text-stock-ok">+12 esta semana</p>
+                        </div>
+                        <div class="bg-surface shadow-card rounded-lg p-md border border-line">
+                            <p class="text-xs text-muted uppercase tracking-wide">Ventas hoy</p>
+                            <p class="text-2xl font-bold text-ink">$4,320</p>
+                            <p class="text-xs text-stock-ok">+8.2% vs ayer</p>
+                        </div>
+                        <div class="bg-surface shadow-card rounded-lg p-md border border-line">
+                            <p class="text-xs text-muted uppercase tracking-wide">Stock crítico</p>
+                            <p class="text-2xl font-bold text-warning">7</p>
+                            <p class="text-xs text-muted">3 sin stock</p>
+                        </div>
+                        <div class="bg-surface shadow-card rounded-lg p-md border border-line">
+                            <p class="text-xs text-muted uppercase tracking-wide">Órdenes</p>
+                            <p class="text-2xl font-bold text-ink">32</p>
+                            <p class="text-xs text-muted">12 pendientes</p>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico + producto destacado -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mb-lg">
+                        <div class="lg:col-span-2 bg-surface border border-line rounded-lg shadow-card p-lg">
+                            <div class="flex items-center justify-between mb-md">
+                                <h3 class="text-ink-soft text-sm font-medium">Ventas (últimos 7 días)</h3>
+                                <div class="flex gap-sm">
+                                    <button class="text-xs text-muted hover:text-ink px-sm py-xs rounded border border-line hover:bg-canvas-alt transition-colors">Hoy</button>
+                                    <button class="text-xs text-muted hover:text-ink px-sm py-xs rounded border border-line hover:bg-canvas-alt transition-colors">Semana</button>
+                                    <button class="text-xs text-muted hover:text-ink px-sm py-xs rounded border border-line hover:bg-canvas-alt transition-colors">Mes</button>
+                                </div>
+                            </div>
+                            <div class="h-48 bg-canvas-alt rounded-md flex items-center justify-center text-muted text-sm border border-line">
+                                <svg class="w-6 h-6 mr-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                Gráfico de ventas (placeholder)
+                            </div>
+                        </div>
+
+                        <div class="bg-surface border-2 border-accent-ring rounded-lg shadow-card p-lg">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <span class="text-xs text-muted uppercase tracking-wide">Producto destacado</span>
+                                    <h4 class="text-ink font-semibold text-lg">Taladro Percutor</h4>
+                                    <p class="text-ink-soft text-sm">Modelo HP-2000</p>
+                                </div>
+                                <span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">Stock OK</span>
+                            </div>
+                            <div class="mt-md flex items-end justify-between">
+                                <div>
+                                    <p class="text-price font-bold text-xl">$89.99</p>
+                                    <p class="text-price-prev text-sm line-through">$124.99</p>
+                                </div>
+                                <button class="bg-accent text-on-accent hover:bg-accent-hover px-md py-sm rounded-md text-sm font-medium transition-colors">Ver producto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                        <div class="px-md py-sm border-b border-line flex items-center justify-between">
+                            <h3 class="text-sm font-medium text-ink">Inventario reciente</h3>
+                            <button class="text-xs text-accent hover:text-accent-hover font-medium">Ver todos →</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-surface sticky top-0">
+                                    <tr class="text-xs uppercase text-muted tracking-wide border-b border-line">
+                                        <th class="text-left py-sm px-md font-medium">Producto</th>
+                                        <th class="text-left py-sm px-md font-medium">SKU</th>
+                                        <th class="text-left py-sm px-md font-medium">Precio</th>
+                                        <th class="text-left py-sm px-md font-medium">Stock</th>
+                                        <th class="text-left py-sm px-md font-medium">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-line">
+                                    <tr class="hover:bg-canvas-alt transition-colors">
+                                        <td class="py-sm px-md font-medium text-ink">Taladro Percutor</td>
+                                        <td class="py-sm px-md text-ink-soft">HP-2000</td>
+                                        <td class="py-sm px-md text-price font-semibold">$89.99</td>
+                                        <td class="py-sm px-md text-ink-soft">42</td>
+                                        <td class="py-sm px-md"><span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">OK</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-canvas-alt transition-colors">
+                                        <td class="py-sm px-md font-medium text-ink">Lija Eléctrica</td>
+                                        <td class="py-sm px-md text-ink-soft">LE-150</td>
+                                        <td class="py-sm px-md text-price font-semibold">$34.50</td>
+                                        <td class="py-sm px-md text-ink-soft">8</td>
+                                        <td class="py-sm px-md"><span class="bg-stock-low-bg text-stock-low text-xs font-medium px-sm py-xs rounded-full border border-amber-200">Bajo</span></td>
+                                    </tr>
+                                    <tr class="hover:bg-canvas-alt transition-colors">
+                                        <td class="py-sm px-md font-medium text-ink">Sierra Circular</td>
+                                        <td class="py-sm px-md text-ink-soft">SC-7</td>
+                                        <td class="py-sm px-md text-price font-semibold">$159.00</td>
+                                        <td class="py-sm px-md text-ink-soft">0</td>
+                                        <td class="py-sm px-md"><span class="bg-stock-out-bg text-stock-out text-xs font-medium px-sm py-xs rounded-full border border-red-200">Sin stock</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== PRODUCTOS PAGE (con productos ficticios) ====== -->
+                <div id="page-products" class="page-content hidden">
+                    <div class="flex items-center justify-between mb-lg">
+                        <div>
+                            <h2 class="text-xl font-bold text-ink">Catálogo de Productos</h2>
+                            <p class="text-sm text-ink-soft">Gestión completa del inventario</p>
+                        </div>
+                        <button class="bg-accent text-on-accent hover:bg-accent-hover px-md py-sm rounded-md text-sm font-medium transition-colors flex items-center gap-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Nuevo producto
+                        </button>
+                    </div>
+
+                    <!-- Grid de productos ficticios -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md">
+                        
+                        <!-- Producto 1 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Taladro Percutor</h4>
+                                        <p class="text-xs text-muted">HP-2000 • DeWalt</p>
+                                    </div>
+                                    <span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">OK</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Taladro percutor profesional con 1200W, velocidad variable y sistema antivibración.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$89.99</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$124.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 42</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 2 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Lija Eléctrica</h4>
+                                        <p class="text-xs text-muted">LE-150 • Bosch</p>
+                                    </div>
+                                    <span class="bg-stock-low-bg text-stock-low text-xs font-medium px-sm py-xs rounded-full border border-amber-200">Bajo</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Lijadora orbital con sistema de extracción de polvo, 350W y velocidad ajustable.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$34.50</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$49.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 8</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 3 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Sierra Circular</h4>
+                                        <p class="text-xs text-muted">SC-7 • Makita</p>
+                                    </div>
+                                    <span class="bg-stock-out-bg text-stock-out text-xs font-medium px-sm py-xs rounded-full border border-red-200">Sin stock</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Sierra circular de 7 1/4" con motor de 15A, guía láser y sistema de seguridad.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$159.00</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$189.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 4 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Cinta Métrica 5m</h4>
+                                        <p class="text-xs text-muted">CM-5 • Stanley</p>
+                                    </div>
+                                    <span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">OK</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Cinta métrica de 5 metros con sistema de freno, gancho magnético y cinta de nylon.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$8.75</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$12.50</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 120</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 5 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Martillo de Goma</h4>
+                                        <p class="text-xs text-muted">MG-2 • Stanley</p>
+                                    </div>
+                                    <span class="bg-stock-low-bg text-stock-low text-xs font-medium px-sm py-xs rounded-full border border-amber-200">Bajo</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Martillo de goma con mango ergonómico, ideal para trabajos de carpintería y ensamblaje.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$12.30</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$16.75</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 15</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 6 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Destornillador Eléctrico</h4>
+                                        <p class="text-xs text-muted">DE-200 • Black+Decker</p>
+                                    </div>
+                                    <span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">OK</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Destornillador eléctrico recargable con 20 accesorios, torque ajustable y luz LED.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$45.99</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$59.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 28</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 7 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Nivel Láser</h4>
+                                        <p class="text-xs text-muted">NL-100 • Bosch</p>
+                                    </div>
+                                    <span class="bg-stock-neutral-bg text-stock-neutral text-xs font-medium px-sm py-xs rounded-full border border-line">Descontinuado</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Nivel láser auto-nivelante con alcance de 30 metros, ideal para instalaciones y carpintería.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$67.50</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$89.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Producto 8 -->
+                        <div class="product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden">
+                            <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                                </svg>
+                            </div>
+                            <div class="p-md">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-ink">Compresor de Aire</h4>
+                                        <p class="text-xs text-muted">CA-50 • Campbell</p>
+                                    </div>
+                                    <span class="bg-stock-ok-bg text-stock-ok text-xs font-medium px-sm py-xs rounded-full border border-green-200">OK</span>
+                                </div>
+                                <p class="text-sm text-ink-soft mt-sm truncate-2">Compresor de aire portátil, 50 litros, 2 HP, ideal para talleres y trabajos de pintura.</p>
+                                <div class="mt-md flex items-center justify-between border-t border-line pt-md">
+                                    <div>
+                                        <span class="text-price font-bold text-lg">$199.00</span>
+                                        <span class="text-price-prev text-sm line-through ml-sm">$249.99</span>
+                                    </div>
+                                    <span class="text-xs text-ink-soft">Stock: 6</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ====== INVENTARIO PAGE (placeholder) ====== -->
+                <div id="page-inventory" class="page-content hidden">
+                    <div class="flex items-center justify-between mb-lg">
+                        <div>
+                            <h2 class="text-xl font-bold text-ink">Gestión de Inventario</h2>
+                            <p class="text-sm text-ink-soft">Control de stock y proveedores</p>
+                        </div>
+                    </div>
+                    <div class="bg-surface border border-line rounded-lg shadow-card p-lg text-center text-ink-soft">
+                        <svg class="w-12 h-12 mx-auto mb-sm text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        </svg>
+                        <p>Panel de inventario en construcción</p>
+                        <p class="text-sm text-muted">Próximamente: reportes de stock, alertas y proveedores</p>
+                    </div>
+                </div>
+
+                <!-- Botones de ejemplo -->
+                <div class="mt-lg flex flex-wrap gap-sm items-center border-t border-line pt-lg">
+                    <span class="text-xs text-muted uppercase tracking-wide mr-sm">Variantes:</span>
+                    <button class="bg-accent text-on-accent hover:bg-accent-hover px-md py-sm rounded-md text-sm font-medium transition-colors">Primario</button>
+                    <button class="border border-line-strong text-ink hover:bg-canvas-alt px-md py-sm rounded-md text-sm font-medium transition-colors">Secundario</button>
+                    <button class="text-ink-soft hover:bg-canvas-alt px-md py-sm rounded-md text-sm font-medium transition-colors">Ghost</button>
+                    <button class="bg-danger text-on-accent hover:bg-red-700 px-md py-sm rounded-md text-sm font-medium transition-colors">Peligro</button>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-sm"></div>
+
+    <script>
+        // ===== NAVEGACIÓN ENTRE PÁGINAS =====
+        const pageTitle = document.getElementById('pageTitle');
+        const pageContents = {
+            dashboard: document.getElementById('page-dashboard'),
+            products: document.getElementById('page-products'),
+            inventory: document.getElementById('page-inventory'),
+        };
+        const pageNames = {
+            dashboard: 'Panel de Control',
+            products: 'Catálogo de Productos',
+            inventory: 'Gestión de Inventario',
+        };
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+
+                // Actualizar active
+                document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // Mostrar página correspondiente
+                Object.keys(pageContents).forEach(key => {
+                    pageContents[key].classList.add('hidden');
+                });
+                if (pageContents[page]) {
+                    pageContents[page].classList.remove('hidden');
+                    pageTitle.textContent = pageNames[page] || page;
+                }
+
+                // Cerrar sidebar en móvil si está colapsado
+                if (window.innerWidth < 768) {
+                    document.getElementById('sidebar').classList.remove('sidebar-collapsed');
+                }
+            });
+        });
+
+        // ===== TOGGLE SIDEBAR =====
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('sidebar-collapsed');
+        });
+
+        // ===== TOASTS =====
+        const container = document.getElementById('toastContainer');
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 200);
+            }, 3000);
+        }
+
+        // Toasts de bienvenida
+        setTimeout(() => showToast('Panel cargado correctamente — Ferretería Abad', 'success'), 500);
+        setTimeout(() => showToast('3 productos con stock bajo', 'warning'), 1500);
+        setTimeout(() => showToast('Sincronización con proveedores completada', 'info'), 2500);
+
+        // Exponer para pruebas
+        window.showToast = showToast;
+
+        // ===== RESPONSIVE: auto-collapse en móvil =====
+        if (window.innerWidth < 768) {
+            document.getElementById('sidebar').classList.add('sidebar-collapsed');
+        }
+    </script>
+
+</body>
+</html>
