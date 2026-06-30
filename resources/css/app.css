@@ -5,7 +5,175 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* --------------------------------------------------
+   Tokens de diseño (según resources/css/CSS-REFERENCE.md)
+   -------------------------------------------------- */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Tipografía */
+    --font-heading: 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Colores base */
+    --color-canvas: #f8fafc;
+    --color-canvas-alt: #f1f5f9;
+    --color-surface: #ffffff;
+    --color-line: #e2e8f0;
+    --color-line-strong: #cbd5e1;
+
+    /* Texto */
+    --color-ink: #0f172a;
+    --color-ink-soft: #475569;
+    --color-muted: #94a3b8;
+    --color-on-accent: #ffffff;
+
+    /* Acento */
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
+    --color-accent-soft: #eff6ff;
+    --color-accent-ring: #3b82f6;
+
+    /* Stock */
+    --color-stock-ok: #15803d;
+    --color-stock-ok-bg: #f0fdf4;
+    --color-stock-low: #b45309;
+    --color-stock-low-bg: #fffbeb;
+    --color-stock-out: #b91c1c;
+    --color-stock-out-bg: #fef2f2;
+    --color-stock-neutral: #475569;
+    --color-stock-neutral-bg: #f1f5f9;
+
+    /* Precios / estados */
+    --color-price: #0f172a;
+    --color-price-sale: #15803d;
+    --color-price-prev: #94a3b8;
+    --color-success: #15803d;
+    --color-success-bg: #f0fdf4;
+    --color-warning: #b45309;
+    --color-warning-bg: #fffbeb;
+    --color-danger: #b91c1c;
+    --color-danger-bg: #fef2f2;
+    --color-info: #1d4ed8;
+    --color-info-bg: #eff6ff;
+
+    /* Espaciado (escala 4px) */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-navbar: 56px;
+    --spacing-sidebar: 240px;
+
+    /* Bordes y sombras */
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-card: 0 1px 3px rgba(15,23,42,0.08);
+    --shadow-elevated: 0 4px 12px rgba(15,23,42,0.10);
+
+    /* Layout */
+    --container-max: 1440px;
 }
+
+/* --------------------------------------------------
+   Capas: base, components, utilities
+   -------------------------------------------------- */
+@layer base {
+    /* Reset minimal + tipografía base */
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    html, body, #app {
+        height: 100%;
+    }
+    body {
+        font-family: var(--font-body);
+        background-color: var(--color-canvas);
+        color: var(--color-ink);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+    }
+    h1,h2,h3,h4,h5,h6 {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        color: var(--color-ink);
+        line-height: 1.25;
+    }
+    a { color: var(--color-accent); text-decoration: none; }
+    a:hover { color: var(--color-accent-hover); }
+}
+
+@layer components {
+    /* Toasts (JS togglea clases dinámicamente) */
+    .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        padding: 16px 24px;
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        box-shadow: var(--shadow-elevated);
+        z-index: 999;
+        max-width: 400px;
+        transition: opacity 0.15s ease, transform 0.12s ease;
+    }
+    .toast-info { background: var(--color-info-bg); color: var(--color-info); border: 1px solid rgba(191,219,254,0.6); }
+    .toast-success { background: var(--color-success-bg); color: var(--color-success); border: 1px solid rgba(187,247,208,0.6); }
+    .toast-warning { background: var(--color-warning-bg); color: var(--color-warning); border: 1px solid rgba(253,230,138,0.6); }
+    .toast-danger { background: var(--color-danger-bg); color: var(--color-danger); border: 1px solid rgba(254,202,202,0.6); }
+
+    /* Sidebar */
+    .sidebar {
+        transition: width 0.3s ease;
+        overflow: hidden;
+        background: var(--color-canvas-alt);
+        border-right: 1px solid var(--color-line);
+    }
+    .sidebar .p-md { padding: var(--spacing-md); }
+    .sidebar-link { transition: all 0.2s ease; border-right: 3px solid transparent; }
+    .sidebar-link.active { background: var(--color-accent-soft); color: var(--color-accent); border-right-color: var(--color-accent); }
+    .sidebar-link:hover:not(.active) { background: var(--color-canvas-alt); }
+    .sidebar-collapsed .sidebar { width: 64px; }
+    .sidebar-collapsed .sidebar-text { display: none; }
+    .sidebar-collapsed .sidebar-icon-only { display: flex; }
+    .sidebar-icon-only { display: none; }
+
+    /* Product card hover */
+    .product-card { transition: all 0.2s ease; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-elevated); }
+
+    /* Badges de stock (componentes Blade normalmente usan utilities, pero agregamos soporte mínimo) */
+    .badge-stock-ok { background: var(--color-stock-ok-bg); color: var(--color-stock-ok); border: 1px solid rgba(16,185,129,0.15); }
+    .badge-stock-low { background: var(--color-stock-low-bg); color: var(--color-stock-low); border: 1px solid rgba(245,158,11,0.12); }
+    .badge-stock-out { background: var(--color-stock-out-bg); color: var(--color-stock-out); border: 1px solid rgba(239,68,68,0.12); }
+}
+
+@layer utilities {
+    /* utilidades puntuales que no vienen de Tailwind build local */
+    .truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    /* alias de spacing para compatibilidad con HTML de prueba */
+    .p-xs { padding: var(--spacing-xs); }
+    .p-sm { padding: var(--spacing-sm); }
+    .p-md { padding: var(--spacing-md); }
+    .p-lg { padding: var(--spacing-lg); }
+    .px-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+    .px-md { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+    .py-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+    .py-xs { padding-top: var(--spacing-xs); padding-bottom: var(--spacing-xs); }
+
+    /* helpers de layout */
+    .h-navbar { height: var(--spacing-navbar); }
+    .w-sidebar { width: var(--spacing-sidebar); }
+    .max-w-container { max-width: var(--container-max); }
+}
+
+/* Nota: las utilidades de Tailwind (p. ej. bg-surface, text-ink, rounded-lg) se generan
+   cuando Tailwind se ejecuta (build o CDN). Estos tokens permiten consistencia cuando se
+   compila con Tailwind v4 y `@theme` en uso. */
+
