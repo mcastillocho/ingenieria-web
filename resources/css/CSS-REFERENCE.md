@@ -205,7 +205,7 @@ se implementa como componente Blade con utilities de Tailwind en el template.
 | `primary`      | `bg-accent text-on-accent hover:bg-accent-hover`                       |
 | `secondary`    | `border border-line-strong text-ink hover:bg-canvas-alt`               |
 | `ghost`        | `text-ink-soft hover:bg-canvas-alt`                                    |
-| `danger`       | `bg-danger text-on-accent hover:bg-red-700`                            |
+| `danger`       | `bg-danger text-on-accent hover:bg-danger-hover`                       |
 
 Sin variante `cyan` ni `dark`: el panel no usa fondos oscuros ni acentos secundarios
 de marca. Prop adicional `size="lg|sm"` se mantiene igual que en botones estándar.
@@ -214,10 +214,31 @@ de marca. Prop adicional `size="lg|sm"` se mantiene igual que en botones estánd
 
 Slots nombrados (`icon`, `title`, `body`, `footer`). Variantes vía prop `variant`:
 `default` (`bg-surface shadow-card`), `flat` (sin sombra, solo `border border-line`),
-`highlighted` (`border-2 border-accent-ring`, para ítems seleccionados o en edición).
+`highlighted` (`border-2 border-accent-ring`, para ítems seleccionados o en edición),
+`stats` (`bg-surface border border-line shadow-card`, optimizado para KPI y tarjetas
+de estadísticas).
 
-`<x-ui.product-card>` añade slots específicos: `image`, `sku`, `price` (usa
-`<x-ui.price>` internamente) y `stock-badge` (usa `<x-ui.badge>`).
+`<x-ui.product-card>` añade slots específicos: `image`, `title`, `subtitle`, `sku`,
+`description`, `price`, `previousPrice`, `stockText`, `stockBadge` y `footer`.
+
+#### Product card — diseño y especificación
+
+- Contenedor: `bg-surface border border-line rounded-lg shadow-card overflow-hidden`.
+- Image wrapper: `h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted overflow-hidden`.
+- Body: `p-md` con layout interno `flex items-start justify-between gap-sm` en el
+  header y `border-t border-line pt-md mt-md` en el footer de precios/stock.
+- Texto:
+  - Título: `font-semibold text-ink`
+  - Subtítulo: `text-xs text-muted`
+  - SKU: `text-xs uppercase tracking-wide text-muted mt-xs`
+  - Descripción: `text-sm text-ink-soft mt-sm truncate-2`
+  - Precio: `text-price font-bold text-lg`
+  - Precio anterior: `text-price-prev text-sm line-through ml-sm`
+  - Stock: `text-xs text-ink-soft`
+- Badge de stock: usar `<x-ui.badge>` con variantes semánticas (`ok`, `low`, `out`, `neutral`).
+- Footer: `px-md py-sm border-t border-line bg-canvas-alt`.
+- Reglas de grid: en layout de catálogo, usar `items-start` y/o `self-start` para evitar
+  que cards de altura variable se estiren verticalmente.
 
 ### Precios (`ui/price.blade.php`)
 
@@ -239,8 +260,8 @@ Slots nombrados (`icon`, `title`, `body`, `footer`). Variantes vía prop `varian
 ### Tablas de Datos (`ui/data-table.blade.php`)
 
 `bg-surface border border-line rounded-lg shadow-card`. Filas: `divide-y divide-line`,
-hover de fila `hover:bg-canvas-alt`, fila seleccionada `bg-accent-soft`. Encabezado
-fijo (`sticky top-0 bg-surface`) para tablas largas de inventario.
+hover de fila `hover:bg-canvas-alt` (o se aplica automáticamente con `.data-table tbody tr:hover`),
+fila seleccionada `bg-accent-soft`. Encabezado fijo (`sticky top-0 bg-surface`) para tablas largas de inventario.
 
 ### Paneles de Gráficos (`ui/chart-panel.blade.php`)
 
@@ -251,6 +272,15 @@ alineados a la derecha del header del panel).
 ### Alertas (`ui/alert.blade.php`) y Modal (`ui/modal.blade.php`)
 
 Alert: prop `variant` (`info|success|warning|danger`), sin JS — puro Blade + utilities.
+
+- Contenedor: `rounded-lg border px-md py-sm text-sm`.
+- Variantes:
+  - `info`: `bg-info-bg border-blue-200 text-info`
+  - `success`: `bg-success-bg border-green-200 text-success`
+  - `warning`: `bg-warning-bg border-amber-200 text-warning`
+  - `danger`: `bg-danger-bg border-red-200 text-danger`
+
+Estas alertas se usan para mensajes de estado/octave en el panel, y deben poder insertarse sin markup extra.
 Modal: vía Alpine.js (incluido en Laravel), `x-show`/`x-transition`.
 
 ### Toast
