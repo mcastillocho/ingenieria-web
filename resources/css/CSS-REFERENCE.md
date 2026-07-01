@@ -128,7 +128,18 @@ resources/
 | `--color-danger-bg`      | #fef2f2  | `bg-danger-bg`        |
 | `--color-info`           | #1d4ed8  | `text-info`           |
 | `--color-info-bg`        | #eff6ff  | `bg-info-bg`          |
+### Form components (`resources/views/components/forms`)
 
+- `x-forms.input` y `x-forms.select` usan por defecto `w-full` en su wrapper para llenar el ancho del contenedor.
+- El `input` y `select` interno usan:
+  - `rounded-md border border-line bg-white px-md py-sm text-ink`
+  - `focus:border-accent focus:ring-2 focus:ring-accent-ring focus:outline-none`
+- Los campos obligatorios (`required`) deben validarse visualmente solo después de que el usuario haya interactuado con ellos (`blur` / `change`).
+  - En la página de prueba esto se controla agregando una clase `touched` al campo tras `blur` o `change`.
+  - El estado inválido no debe mostrarse en campos requeridos que aún no han sido tocados.
+- Para selects con ancho adaptado, la clase de ancho debe aplicarse al wrapper:
+  - `class="max-w-sm"` en el componente envuelve al `select` interno que ya tiene `w-full`.
+  - Así el select ocupa todo el ancho del wrapper y no se queda en el mínimo necesario.
 ### Espaciado (escala 4px)
 
 | Token            | Valor | Clase generada (ej. padding) |

@@ -13,3 +13,7 @@ Route::get('/test', function () {
 Route::get('/ui/test', function () {
     return view('ui.test');
 });
+
+Route::get('/forms/test', function () {
+    return view('forms.test');
+});
