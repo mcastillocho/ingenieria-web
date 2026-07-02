@@ -14,6 +14,10 @@ Route::get('/ui/test', function () {
     return view('ui.test');
 });
 
+Route::get('/layout/test', function () {
+    return view('layout.test');
+});
+
 Route::get('/forms/test', function () {
     return view('forms.test');
 });
