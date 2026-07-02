@@ -10,6 +10,10 @@ Route::get('/test', function () {
     return view('page_test');
 });
 
+Route::get('/test/clone', function () {
+    return view('page_test_clone');
+});
+
 Route::get('/ui/test', function () {
     return view('ui.test');
 });

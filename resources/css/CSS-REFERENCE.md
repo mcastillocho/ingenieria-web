@@ -220,8 +220,13 @@ y las clases/tokens que el equipo ha estado usando en las últimas iteraciones.
 - `.sidebar-collapsed` — estado en escritorio (width reducido visualmente).
 - `.mobile-expanded` / `.mobile-collapsed` — estados para comportamiento en móvil.
 - `data-has-submenu` — atributo en un link que indica que ese item tiene submenu
-  y que, por tanto, no debe colapsar el panel en móvil cuando se toca.
-
+  y que, por tanto, no debe colapsar el panel en móvil cuando se toca.- `x-layout.sidebar-item` — componente Blade del sidebar. Puede recibir:
+  - `label` — texto del item.
+  - `href` — enlace del item.
+  - `active` — marca el item activo.
+  - `iconPath` — ruta `d="..."` para el `<path>` del SVG, que el componente renderiza
+    automáticamente con el mismo wrapper y estilos.
+  - `icon` — fallback HTML/emoji si no se usa `iconPath`.
 ### Tokens y utilidades relevantes
 
 - `w-sidebar` — ancho de la columna del sidebar (token `--spacing-sidebar`).
