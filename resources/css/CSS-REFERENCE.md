@@ -18,7 +18,6 @@ resources/
 └── views/
     └── components/
         ├── layout/
-        │   ├── navbar.blade.php
         │   ├── sidebar.blade.php
         │   └── topbar.blade.php
         │
@@ -73,7 +72,7 @@ resources/
 | ------------------------ | -------- | -------------------------- | --------------------------------------- |
 | `--color-canvas`        | #f8fafc  | `bg-canvas`                | Fondo general de la app                |
 | `--color-canvas-alt`    | #f1f5f9  | `bg-canvas-alt`            | Sidebar, zonas secundarias              |
-| `--color-surface`       | #ffffff  | `bg-surface`               | Cards, tablas, modales, navbar          |
+| `--color-surface`       | #ffffff  | `bg-surface`               | Cards, tablas, modales, topbar          |
 | `--color-line`          | #e2e8f0  | `border-line`              | Inputs, divisores, bordes de tabla      |
 | `--color-line-strong`   | #cbd5e1  | `border-line-strong`       | Bordes con más énfasis (cards activas)  |
 
@@ -163,7 +162,7 @@ resources/
 
 | Token              | Valor  | Uso                                                |
 | --------------------- | ------ | ----------------------------------------------------- |
-| `--spacing-navbar`   | 56px   | Altura de topbar (`h-navbar`)                         |
+| `--spacing-topbar`   | 56px   | Altura de topbar (`h-topbar`)                        |
 | `--spacing-sidebar`  | 240px  | Ancho de sidebar (`w-sidebar`)                        |
 | `--container-max`    | 1440px | Ancho máximo de contenido principal                   |
 
@@ -194,8 +193,80 @@ que controlan prioridad sin depender del orden de escritura ni de especificidad 
 - `.sidebar-link.active` si se toggla con JS vanilla en vez de Blade (con
   `request()->routeIs()` en Blade este caso desaparece).
 
-**Todo lo demás** (botones, cards, badges, tablas, formularios, navbar, sidebar)
+**Todo lo demás** (botones, cards, badges, tablas, formularios, topbar, sidebar)
 se implementa como componente Blade con utilities de Tailwind en el template.
+
+---
+
+## 🧭 Layout — Topbar & Sidebar (comportamiento observado)
+
+Esta sección documenta el comportamiento actual del shell (topbar + sidebar)
+y las clases/tokens que el equipo ha estado usando en las últimas iteraciones.
+
+### Estructura mínima
+
+- Topbar: componente fijo en la parte superior, altura `h-topbar`.
+- Sidebar: columna izquierda con ancho `w-sidebar` que empuja el contenido
+  principal (no superpone en escritorio). En móvil se transforma en panel
+  colapsable/expandible.
+
+### Clases principales (HTML)
+
+- `#sidebar` — elemento `aside` raíz del sidebar.
+- `.sidebar-link` — enlaces principales dentro del sidebar.
+- `.sidebar-item` — wrapper de cada entrada (puede contener `.sidebar-submenu`).
+- `.sidebar-submenu` — contenedor de links secundarios (submenu).
+- `.sidebar-link.active` — estado visual activo (se aplica con JS o Blade).
+- `.sidebar-collapsed` — estado en escritorio (width reducido visualmente).
+- `.mobile-expanded` / `.mobile-collapsed` — estados para comportamiento en móvil.
+- `data-has-submenu` — atributo en un link que indica que ese item tiene submenu
+  y que, por tanto, no debe colapsar el panel en móvil cuando se toca.
+
+### Tokens y utilidades relevantes
+
+- `w-sidebar` — ancho de la columna del sidebar (token `--spacing-sidebar`).
+- `bg-canvas-alt` / `border-line` — fondo y borde del sidebar.
+- `text-ink-soft` / `text-muted` — para items secundarios y descripciones.
+
+### Comportamiento esperado (reglas resumidas)
+
+1. Escritorio (>= 768px):
+   - El sidebar está fijo en la columna izquierda y empuja el contenido.
+   - Puede tener una variante `sidebar-collapsed` para reducir ancho visual,
+     pero el panel sigue presente como columna.
+
+2. Móvil (< 768px):
+   - El sidebar pasa a modo overlay/panel que se abre/oculta mediante el
+     toggle en el topbar (hamburger).
+   - Al hacer clic en un `sidebar-link` que es un enlace normal, el panel debe
+     colapsar (cerrarse) para mostrar el content principal.
+   - Al hacer clic en un `sidebar-link` que es padre de un submenu (o en un
+     link dentro de `.sidebar-submenu`), NO debe colapsar automáticamente;
+     se requiere que el submenu pueda abrirse/navegar sin cerrar el panel.
+
+3. Submenus:
+   - No hay chevron control visual por defecto; la interacción está basada en
+     tocar el padre para expandir/contraer la lista secundaria.
+   - Los items dentro de `.sidebar-submenu` pueden tener la clase
+     `.sidebar-link` y deben respetar el mismo esquema de `active`.
+
+### Dónde vive la lógica JS
+
+- `resources/js/app.js` — controlador principal del toggle del sidebar,
+  estados `active` en `sidebar-link`, y la lógica para evitar el cierre
+  automático en móvil cuando el target es parte de un submenu.
+- Evitar múltiples listeners duplicados (inline scripts en vistas de prueba)
+  — preferir centralizar en `app.js`.
+
+### Reglas de accesibilidad y UX
+
+- El toggle en topbar debe tener `aria-expanded` y `aria-controls` apuntando
+  al `id` del `#sidebar`.
+- Cuando el sidebar se abre en móvil, el focus management debe mover el foco al
+  primer elemento interactivo dentro del panel y restaurarlo al cerrar.
+- Los colores de `active` deben tener suficiente contraste con el fondo.
+
+---
 
 ---
 
@@ -348,5 +419,5 @@ toast.className = `fixed bg-${type === 'success' ? 'success-bg' : 'danger-bg'} .
 
 ---
 
-**Última actualización:** 30 Junio 2026
-**Versión:** 0.1.0 (panel admin — Ferretería Abad)
+**Última actualización:** 02 Julio 2026
+**Versión:** 0.1.1 (panel admin — Ferretería Abad)
