@@ -20,7 +20,7 @@ class ProveedoresController extends Controller
             }
         ])->orderBy('name')->get();
 
-        return view('proveedores.index', compact('suppliers'));
+        return view('logistica.proveedores', compact('suppliers'));
     }
 
     public function store(Request $request): RedirectResponse

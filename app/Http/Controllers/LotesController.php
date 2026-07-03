@@ -24,7 +24,7 @@ class LotesController extends Controller
         $suppliers  = Supplier::orderBy('name')->pluck('name', 'id');
         $categories = ProductCategory::orderBy('name')->pluck('name', 'id');
 
-        return view('lotes.index', compact('batches', 'products', 'suppliers', 'categories'));
+        return view('logistica.lotes', compact('batches', 'products', 'suppliers', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse

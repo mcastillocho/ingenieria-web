@@ -21,7 +21,7 @@ class ProductosController extends Controller
 
         $categories = ProductCategory::orderBy('name')->pluck('name', 'id');
 
-        return view('productos.index', compact('products', 'categories'));
+        return view('logistica.productos', compact('products', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse
