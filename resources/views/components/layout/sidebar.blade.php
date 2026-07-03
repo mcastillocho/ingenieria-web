@@ -8,7 +8,7 @@
         {{ $slot }}
     </nav>
 
-    <div class="sidebar-footer border-t border-line bg-canvas-alt p-md">
+    <div class="sidebar-footer border-t border-line bg-canvas-alt p-sm">
         {{ $footer ?? '' }}
     </div>
 </aside>

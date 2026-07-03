@@ -1,8 +1,7 @@
 @extends('layout.base')
 
 @section('title', 'Page Test — Base')
-@section('pageTitle', 'Panel de Control')
-@section('appVersion', 'v0.1.0')
+@section('pageTitle', 'Ferretería Abad')
 
 @section('content')
     <div class="space-y-lg">

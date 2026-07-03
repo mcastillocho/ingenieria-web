@@ -133,6 +133,9 @@ Props:
 - `icon` — icono HTML/emoji de reserva.
 - `submenu` — habilita renderizado de submenu.
 - `id` — id opcional.
+- `formAction` — si se pasa, renderiza el item como un `<form>` con `<button>` en lugar de un `<a>`.
+- `formMethod` — método del formulario (por defecto `POST`).
+- `buttonType` — tipo del botón interno (por defecto `submit`).
 
 Ejemplo de submenu:
 
@@ -141,6 +144,18 @@ Ejemplo de submenu:
     <x-layout.sidebar-item label="Opción A" href="#" />
     <x-layout.sidebar-item label="Opción B" href="#" />
 </x-layout.sidebar-item>
+```
+
+Ejemplo de logout:
+
+```blade
+<x-layout.sidebar-item
+    label="Cerrar sesión"
+    iconPath="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2 M9 12h12l-3 -3 M18 15l3 -3"
+    formAction="{{ url('/logout') }}"
+    formMethod="POST"
+    class="text-danger"
+/>
 ```
 
 ---
