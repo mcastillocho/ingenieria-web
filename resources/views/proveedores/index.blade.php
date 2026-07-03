@@ -40,6 +40,7 @@
         $totalSuppliers  = $suppliers->count();
         $withBatches     = $suppliers->filter(fn($s) => $s->batches_count > 0)->count();
         $withoutBatches  = $totalSuppliers - $withBatches;
+        $withStock       = $suppliers->filter(fn($s) => $s->batches_with_stock_count > 0)->count();
         $docTypes        = $suppliers->groupBy('document_type')->map->count();
     @endphp
 
@@ -62,6 +63,12 @@
                 <span class="text-2xl font-bold text-muted">{{ $withoutBatches }}</span>
             </div>
         </x-ui.card>
+        <x-ui.card variant="stats">
+            <div class="px-md py-md flex flex-col gap-xs">
+                <span class="text-xs text-muted uppercase tracking-wide font-medium">Con stock</span>
+                <span class="text-2xl font-bold text-accent">{{ $withStock }}</span>
+            </div>
+        </x-ui.card>
     </div>
 
     {{-- ── Tabla de proveedores ── --}}
@@ -74,7 +81,8 @@
                 <th class="px-md py-sm">N° documento</th>
                 <th class="px-md py-sm">Email</th>
                 <th class="px-md py-sm">Teléfono</th>
-                <th class="px-md py-sm text-center">Lotes</th>
+                <th class="px-md py-sm text-center">Lotes Totales</th>
+                <th class="px-md py-sm text-center">Lotes c/Stock</th>
                 <th class="px-md py-sm text-center">Acciones</th>
             </tr>
         </x-slot>
@@ -99,7 +107,14 @@
                 <td class="px-md py-sm text-ink-soft text-sm">{{ $supplier->phone ?? '—' }}</td>
                 <td class="px-md py-sm text-center">
                     @if($supplier->batches_count > 0)
-                        <x-ui.badge variant="ok">{{ $supplier->batches_count }}</x-ui.badge>
+                        <x-ui.badge variant="neutral">{{ $supplier->batches_count }}</x-ui.badge>
+                    @else
+                        <span class="text-muted text-xs">0</span>
+                    @endif
+                </td>
+                <td class="px-md py-sm text-center">
+                    @if($supplier->batches_with_stock_count > 0)
+                        <x-ui.badge variant="ok">{{ $supplier->batches_with_stock_count }}</x-ui.badge>
                     @else
                         <span class="text-muted text-xs">0</span>
                     @endif
@@ -116,7 +131,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="px-md py-lg text-center text-muted text-sm">
+                <td colspan="9" class="px-md py-lg text-center text-muted text-sm">
                     No hay proveedores registrados todavía.
                 </td>
             </tr>

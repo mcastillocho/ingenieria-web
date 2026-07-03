@@ -13,9 +13,12 @@ class ProveedoresController extends Controller
 {
     public function index(): View
     {
-        $suppliers = Supplier::withCount('batches')
-            ->orderBy('name')
-            ->get();
+        $suppliers = Supplier::withCount([
+            'batches',
+            'batches as batches_with_stock_count' => function ($query) {
+                $query->where('current_stock', '>', 0);
+            }
+        ])->orderBy('name')->get();
 
         return view('proveedores.index', compact('suppliers'));
     }
