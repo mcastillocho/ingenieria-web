@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\ProveedoresController;
+use App\Http\Controllers\ProductosController;
 use App\Http\Middleware\EnsureAuthenticated;
 
 Route::get('/login', function () {
@@ -29,4 +30,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::post('/proveedores',             [ProveedoresController::class, 'store'])->name('proveedores.store');
     Route::put('/proveedores/{supplier}',   [ProveedoresController::class, 'update'])->name('proveedores.update');
 
+    // Productos
+    Route::get('/productos',                [ProductosController::class, 'index'])->name('productos.index');
+    Route::post('/productos',               [ProductosController::class, 'store'])->name('productos.store');
+    Route::put('/productos/{producto}',     [ProductosController::class, 'update'])->name('productos.update');
 });
