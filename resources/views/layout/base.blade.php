@@ -48,13 +48,15 @@
                     @php $role = session('role'); @endphp
 
                     @if($role === 'admin')
-                    <x-layout.sidebar-item label="Dashboard"  href="/"           :active="request()->is('/')"           iconPath="M3 12l2-2 7-7 7 7M13 5v6h6" />
-                    <x-layout.sidebar-item label="Inventario" href="/inventario" :active="request()->is('inventario*')"  iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
-                    <x-layout.sidebar-item label="Tienda"     href="#"           :active="false"                         iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
+                    <x-layout.sidebar-item label="Dashboard"    href="/"             :active="request()->is('/')"             iconPath="M3 12l2-2 7-7 7 7M13 5v6h6" />
+                    <x-layout.sidebar-item label="Inventario"   href="/inventario"   :active="request()->is('inventario*')"   iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
+                    <x-layout.sidebar-item label="Proveedores"  href="/proveedores"  :active="request()->is('proveedores*')"  iconPath="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                    <x-layout.sidebar-item label="Tienda"       href="#"             :active="false"                          iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
                     @elseif($role === 'logistica')
-                    <x-layout.sidebar-item label="Inventario" href="/inventario" :active="request()->is('inventario*')"  iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
+                    <x-layout.sidebar-item label="Inventario"   href="/inventario"   :active="request()->is('inventario*')"   iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
+                    <x-layout.sidebar-item label="Proveedores"  href="/proveedores"  :active="request()->is('proveedores*')"  iconPath="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
                     @elseif($role === 'ventas')
-                    <x-layout.sidebar-item label="Tienda"     href="#"           :active="false"                         iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
+                    <x-layout.sidebar-item label="Tienda"       href="#"             :active="false"                          iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
                     @else
                     {{-- Por defecto no muestra nada si tiene un rol desconocido --}}
                     @endif
