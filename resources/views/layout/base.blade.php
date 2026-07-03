@@ -89,6 +89,156 @@
             </div>
         </div>
     </div>
+
+    {{-- ── Modal de confirmación de cierre de sesión ── --}}
+    <div
+        id="logout-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="logout-modal-title"
+        class="fixed inset-0 z-50 flex items-center justify-center"
+        style="display: none !important;"
+    >
+        {{-- Backdrop --}}
+        <div
+            id="logout-modal-backdrop"
+            class="absolute inset-0"
+            style="opacity: 0; transition: opacity 0.2s ease; background: rgba(15,23,42,0.60); backdrop-filter: blur(4px);"
+        ></div>
+
+        {{-- Panel --}}
+        <div
+            id="logout-modal-panel"
+            class="relative bg-surface rounded-lg flex flex-col"
+            style="
+                opacity: 0;
+                transform: scale(0.95) translateY(-8px);
+                transition: opacity 0.2s ease, transform 0.2s ease;
+                width: calc(100% - 48px);
+                max-width: 400px;
+                padding: var(--spacing-lg);
+                gap: var(--spacing-md);
+                box-shadow: var(--shadow-elevated);
+            "
+        >
+            {{-- Icono --}}
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-danger-bg mx-auto">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                     class="text-danger">
+                    <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/>
+                    <path d="M9 12h12l-3 -3M18 15l3 -3"/>
+                </svg>
+            </div>
+
+            {{-- Texto --}}
+            <div class="text-center">
+                <h2 id="logout-modal-title" class="text-base font-semibold text-ink">
+                    ¿Cerrar sesión?
+                </h2>
+                <p class="text-sm text-ink-soft mt-xs">
+                    Tu sesión actual se cerrará y tendrás que volver a iniciar sesión para acceder al sistema.
+                </p>
+            </div>
+
+            {{-- Acciones --}}
+            <div class="flex gap-sm mt-xs">
+                <button
+                    id="logout-cancel-btn"
+                    type="button"
+                    class="flex-1 px-md py-sm rounded-md text-sm font-medium bg-canvas-alt text-ink-soft
+                           border border-line hover:bg-line hover:text-ink transition-colors cursor-pointer"
+                >
+                    Cancelar
+                </button>
+                <button
+                    id="logout-confirm-btn"
+                    type="button"
+                    class="flex-1 px-md py-sm rounded-md text-sm font-medium bg-danger text-on-accent
+                           hover:bg-danger-hover transition-colors cursor-pointer"
+                >
+                    Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal     = document.getElementById('logout-modal');
+            const backdrop  = document.getElementById('logout-modal-backdrop');
+            const panel     = document.getElementById('logout-modal-panel');
+            const cancelBtn = document.getElementById('logout-cancel-btn');
+            const confirmBtn = document.getElementById('logout-confirm-btn');
+
+            let logoutForm = null;
+
+            // Buscar el formulario de logout generado por x-layout.sidebar-item
+            function findLogoutForm() {
+                // El sidebar-item con formAction genera un <form> con un <button> que contiene el label
+                return document.querySelector('form[action="{{ url("/logout") }}"], form[action*="/logout"]');
+            }
+
+            function openModal() {
+                modal.style.removeProperty('display');
+                // Forzar reflow para que la transición CSS arranque
+                void modal.offsetWidth;
+                backdrop.style.opacity = '1';
+                panel.style.opacity = '1';
+                panel.style.transform = 'scale(1) translateY(0)';
+                document.body.style.overflow = 'hidden';
+                cancelBtn.focus();
+            }
+
+            function closeModal() {
+                backdrop.style.opacity = '0';
+                panel.style.opacity = '0';
+                panel.style.transform = 'scale(0.95) translateY(-8px)';
+                document.body.style.overflow = '';
+                setTimeout(function () {
+                    modal.style.display = 'none';
+                }, 210);
+            }
+
+            function init() {
+                logoutForm = findLogoutForm();
+                if (!logoutForm) return;
+
+                // Interceptar el submit del formulario de logout
+                logoutForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    openModal();
+                });
+
+                // Botón cancelar
+                cancelBtn.addEventListener('click', closeModal);
+
+                // Botón confirmar: hace submit real del formulario
+                confirmBtn.addEventListener('click', function () {
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Cerrando…';
+                    logoutForm.submit();
+                });
+
+                // Cerrar con Escape
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && modal.style.display !== 'none') {
+                        closeModal();
+                    }
+                });
+
+                // Cerrar al hacer clic en el backdrop
+                backdrop.addEventListener('click', closeModal);
+            }
+
+            // Ejecutar cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
 </body>
 
 </html>
