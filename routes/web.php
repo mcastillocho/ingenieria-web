@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\LotesController;
 use App\Http\Controllers\ProveedoresController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Middleware\EnsureAuthenticated;
@@ -20,10 +20,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         return view('welcome');
     });
 
-    // Inventario
-    Route::get('/inventario',              [InventarioController::class, 'index'])->name('inventario.index');
-    Route::post('/inventario',             [InventarioController::class, 'store'])->name('inventario.store');
-    Route::put('/inventario/{batch}',      [InventarioController::class, 'update'])->name('inventario.update');
+    // Lotes
+    Route::get('/lotes',         [LotesController::class, 'index'])->name('lotes.index');
+    Route::post('/lotes',        [LotesController::class, 'store'])->name('lotes.store');
+    Route::put('/lotes/{batch}', [LotesController::class, 'update'])->name('lotes.update');
 
     // Proveedores
     Route::get('/proveedores',              [ProveedoresController::class, 'index'])->name('proveedores.index');

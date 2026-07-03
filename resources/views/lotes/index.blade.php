@@ -1,7 +1,7 @@
 @extends('layout.base')
 
-@section('title', 'Inventario — Ferretería Abad')
-@section('pageTitle', 'Inventario de Lotes')
+@section('title', 'Lotes — Ferretería Abad')
+@section('pageTitle', 'Lotes')
 
 @section('content')
 <div class="flex flex-col gap-lg">
@@ -176,8 +176,8 @@
     {{-- Formulario --}}
     <div class="flex-1 overflow-y-auto px-lg py-lg">
         <form id="batch-form" method="POST"
-              action="{{ route('inventario.store') }}"
-              data-store-url="{{ route('inventario.store') }}"
+              action="{{ route('lotes.store') }}"
+              data-store-url="{{ route('lotes.store') }}"
               class="flex flex-col gap-md">
             @csrf
             <input type="hidden" name="_method" id="form-method" value="POST">

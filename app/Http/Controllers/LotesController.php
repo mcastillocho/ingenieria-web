@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class InventarioController extends Controller
+class LotesController extends Controller
 {
     public function index(): View
     {
@@ -24,7 +24,7 @@ class InventarioController extends Controller
         $suppliers  = Supplier::orderBy('name')->pluck('name', 'id');
         $categories = ProductCategory::orderBy('name')->pluck('name', 'id');
 
-        return view('inventario.index', compact('batches', 'products', 'suppliers', 'categories'));
+        return view('lotes.index', compact('batches', 'products', 'suppliers', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -113,7 +113,7 @@ class InventarioController extends Controller
             $msg = "Proveedor \"{$supplierName}\" y lote creados correctamente.";
         }
 
-        return redirect()->route('inventario.index')->with('success', $msg);
+        return redirect()->route('lotes.index')->with('success', $msg);
     }
 
     public function update(Request $request, Batch $batch): RedirectResponse
@@ -128,7 +128,7 @@ class InventarioController extends Controller
 
         $batch->update($validated);
 
-        return redirect()->route('inventario.index')
+        return redirect()->route('lotes.index')
             ->with('success', 'Lote actualizado correctamente.');
     }
 }

@@ -49,12 +49,12 @@
 
                     @if($role === 'admin')
                     <x-layout.sidebar-item label="Dashboard"    href="/"             :active="request()->is('/')"             iconPath="M3 12l2-2 7-7 7 7M13 5v6h6" />
-                    <x-layout.sidebar-item label="Inventario"   href="/inventario"   :active="request()->is('inventario*')"   iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
+                    <x-layout.sidebar-item label="Lotes"        href="/lotes"        :active="request()->is('lotes*')"        iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
                     <x-layout.sidebar-item label="Productos"    href="/productos"    :active="request()->is('productos*')"    iconPath="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12" />
                     <x-layout.sidebar-item label="Proveedores"  href="/proveedores"  :active="request()->is('proveedores*')"  iconPath="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
                     <x-layout.sidebar-item label="Tienda"       href="#"             :active="false"                          iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
                     @elseif($role === 'logistica')
-                    <x-layout.sidebar-item label="Inventario"   href="/inventario"   :active="request()->is('inventario*')"   iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
+                    <x-layout.sidebar-item label="Lotes"        href="/lotes"        :active="request()->is('lotes*')"        iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
                     <x-layout.sidebar-item label="Productos"    href="/productos"    :active="request()->is('productos*')"    iconPath="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12" />
                     <x-layout.sidebar-item label="Proveedores"  href="/proveedores"  :active="request()->is('proveedores*')"  iconPath="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
                     @elseif($role === 'ventas')
