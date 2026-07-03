@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InventarioController;
 use App\Http\Middleware\EnsureAuthenticated;
 
 Route::get('/login', function () {
@@ -16,4 +17,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::get('/', function () {
         return view('welcome');
     });
+
+    // Inventario
+    Route::get('/inventario',              [InventarioController::class, 'index'])->name('inventario.index');
+    Route::post('/inventario',             [InventarioController::class, 'store'])->name('inventario.store');
+    Route::put('/inventario/{batch}',      [InventarioController::class, 'update'])->name('inventario.update');
 });
