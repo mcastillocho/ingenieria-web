@@ -113,7 +113,7 @@
             >
                 <td class="px-md py-sm text-muted text-xs font-mono">{{ $batch->id }}</td>
                 <td class="px-md py-sm font-medium text-ink">{{ $batch->product->name ?? '—' }}</td>
-                <td class="px-md py-sm text-ink-soft text-sm">{{ $batch->product->category->name ?? '—' }}</td>
+                <td class="px-md py-sm text-ink-soft text-sm">{{ $batch->product->productCategory->name ?? '—' }}</td>
                 <td class="px-md py-sm text-ink-soft text-sm">{{ $batch->supplier->name ?? '—' }}</td>
                 <td class="px-md py-sm text-right text-ink">{{ number_format($batch->initial_stock) }}</td>
                 <td class="px-md py-sm text-right font-semibold text-ink">{{ number_format($batch->current_stock) }}</td>

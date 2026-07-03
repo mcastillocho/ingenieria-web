@@ -14,7 +14,7 @@ class ProductosController extends Controller
 {
     public function index(): View
     {
-        $products = Product::with('category')
+        $products = Product::with('productCategory')
             ->withSum('batches', 'current_stock')
             ->orderBy('name')
             ->get();

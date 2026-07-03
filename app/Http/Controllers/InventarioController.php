@@ -16,7 +16,7 @@ class InventarioController extends Controller
 {
     public function index(): View
     {
-        $batches = Batch::with(['product.category', 'supplier'])
+        $batches = Batch::with(['product.productCategory', 'supplier'])
             ->orderByDesc('created_at')
             ->get();
 

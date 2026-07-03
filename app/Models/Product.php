@@ -22,7 +22,7 @@ class Product extends Model
         'sale_price' => 'decimal:2',
     ];
 
-    public function category(): BelongsTo
+    public function productCategory(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class);
     }
