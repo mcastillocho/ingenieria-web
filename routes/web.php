@@ -34,4 +34,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::get('/productos',                [ProductosController::class, 'index'])->name('productos.index');
     Route::post('/productos',               [ProductosController::class, 'store'])->name('productos.store');
     Route::put('/productos/{producto}',     [ProductosController::class, 'update'])->name('productos.update');
+
+    // Ventas
+    Route::get('/ventas/nueva',             [\App\Http\Controllers\VentasController::class, 'create'])->name('ventas.create');
+    Route::post('/ventas',                  [\App\Http\Controllers\VentasController::class, 'store'])->name('ventas.store');
 });
