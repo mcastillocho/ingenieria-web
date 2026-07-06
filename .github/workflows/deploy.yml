@@ -92,10 +92,10 @@ jobs:
             docker image prune -f
             
             # Ejecuta las migraciones automáticamente
-            docker exec laravel_php php artisan migrate --force
+            docker exec ferreteria_abad_php php artisan migrate --force
             
             # Ejecuta los seeders automáticamente para llenar la base de datos
-            docker exec laravel_php php artisan db:seed --force
+            docker exec ferreteria_abad_php php artisan db:seed --force
             
             # Limpia la caché de Laravel para que tome los nuevos cambios
-            docker exec laravel_php php artisan optimize:clear
+            docker exec ferreteria_abad_php php artisan optimize:clear
