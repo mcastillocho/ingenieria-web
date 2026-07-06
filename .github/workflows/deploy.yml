@@ -1,0 +1,101 @@
+name: Deploy Laravel to Server
+
+# 1. Ejecutar al hacer push a 'main'
+on:
+  push:
+    branches:
+      - main
+
+# 2. Variables de entorno globales
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ==========================================
+  # TRABAJO 1: COMPILAR Y SUBIR LA IMAGEN
+  # ==========================================
+  build-and-push:
+    runs-on: ubuntu-latest
+    # Da permisos a GitHub Actions para escribir en el registro de paquetes
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Iniciar sesión en GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Este token es automático
+
+      - name: Extraer metadatos y etiquetas para Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar dependencias NPM y compilar Vite
+        run: |
+          npm install
+          npm run build
+
+      - name: Construir y subir la imagen (Build & Push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ==========================================
+  # TRABAJO 2: DESPLEGAR EN EL SERVIDOR
+  # ==========================================
+  deploy:
+    # Solo se ejecuta si el trabajo 1 terminó con éxito
+    needs: build-and-push 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Conectar al servidor vía SSH y actualizar contenedores
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          # Los comandos exactos que GitHub ejecutará en el servidor:
+          script: |
+            # Entra a la carpeta del proyecto
+            cd /opt/webapp
+            
+            # Obliga a Docker a conectarse al registro de GitHub para descargar (Usa el usuario genérico y un token)
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # Descarga la imagen más reciente (la que se acaba de compilar)
+            docker compose pull php_app
+            
+            # Apaga el contenedor viejo y enciende el nuevo con la nueva imagen
+            docker compose up -d
+            
+            # Limpia imágenes viejas de Docker para que el disco duro no se llene
+            docker image prune -f
+            
+            # Ejecuta las migraciones automáticamente
+            docker exec laravel_php php artisan migrate --force
+            
+            # Ejecuta los seeders automáticamente para llenar la base de datos
+            docker exec laravel_php php artisan db:seed --force
+            
+            # Limpia la caché de Laravel para que tome los nuevos cambios
+            docker exec laravel_php php artisan optimize:clear
