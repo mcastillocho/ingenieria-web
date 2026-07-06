@@ -203,6 +203,34 @@ class InventarioSeeder extends Seeder
             ]));
         }
 
-        // Los Workers y Credenciales ahora se manejan exclusivamente en UsersSeeder.php
+        // ── 5. Workers (para login) ────────────────────────────────────────
+        $workers = [
+            ['name' => 'Admin',    'lastname' => 'Abad',     'document_type' => 'DNI', 'document_number' => '00000001', 'email' => 'admin@abad.local',    'phone' => '900000001'],
+            ['name' => 'Logistic', 'lastname' => 'User',     'document_type' => 'DNI', 'document_number' => '00000002', 'email' => 'logistic@abad.local', 'phone' => '900000002'],
+            ['name' => 'Ventas',   'lastname' => 'Demo',     'document_type' => 'DNI', 'document_number' => '00000003', 'email' => 'ventas@abad.local',   'phone' => '900000003'],
+        ];
+
+        foreach ($workers as $worker) {
+            DB::table('workers')->insertOrIgnore(array_merge($worker, [
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]));
+        }
+
+        $workerIds = DB::table('workers')->pluck('id', 'email');
+
+        // ── 6. Credenciales ────────────────────────────────────────────────
+        $credentials = [
+            ['worker_id' => $workerIds['admin@abad.local'],    'username' => 'admin',    'password' => Hash::make('admin123'),    'role' => 'admin'],
+            ['worker_id' => $workerIds['logistic@abad.local'], 'username' => 'logistic', 'password' => Hash::make('logistic123'), 'role' => 'logistica'],
+            ['worker_id' => $workerIds['ventas@abad.local'],   'username' => 'ventas',   'password' => Hash::make('ventas123'),   'role' => 'ventas'],
+        ];
+
+        foreach ($credentials as $cred) {
+            DB::table('credentials')->insertOrIgnore(array_merge($cred, [
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]));
+        }
     }
 }
