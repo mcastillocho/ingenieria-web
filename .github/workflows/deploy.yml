@@ -94,8 +94,5 @@ jobs:
             # Ejecuta las migraciones automáticamente
             docker exec ferreteria_abad_php php artisan migrate --force
             
-            # Ejecuta los seeders automáticamente para llenar la base de datos
-            docker exec ferreteria_abad_php php artisan db:seed --force
-            
             # Limpia la caché de Laravel para que tome los nuevos cambios
             docker exec ferreteria_abad_php php artisan optimize:clear
