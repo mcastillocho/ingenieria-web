@@ -77,13 +77,13 @@ jobs:
           # Los comandos exactos que GitHub ejecutará en el servidor:
           script: |
             # Entra a la carpeta del proyecto
-            cd /opt/webapp
+            cd /opt/ferreteria-abad
             
             # Obliga a Docker a conectarse al registro de GitHub para descargar (Usa el usuario genérico y un token)
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             # Descarga la imagen más reciente (la que se acaba de compilar)
-            docker compose pull php_app
+            docker compose pull ferreteria_abad_php_app
             
             # Apaga el contenedor viejo y enciende el nuevo con la nueva imagen
             docker compose up -d
