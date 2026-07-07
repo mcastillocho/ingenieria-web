@@ -79,20 +79,25 @@ jobs:
             # Entra a la carpeta del proyecto
             cd /opt/ferreteria-abad
             
-            # Obliga a Docker a conectarse al registro de GitHub para descargar (Usa el usuario genérico y un token)
+            # Obliga a Docker a conectarse al registro de GitHub para descargar
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # Descarga la imagen más reciente (la que se acaba de compilar)
+            # Descarga la imagen más reciente
             docker compose pull ferreteria_abad_php_app
             
-            # Apaga el contenedor viejo y enciende el nuevo con la nueva imagen
-            docker compose up -d
+            # RECREAR A LA FUERZA tanto PHP como el NGINX interno.
+            # Esto desbloquea el volumen compartido 'app_code' y monta los assets frescos de Vite.
+            docker compose up -d --force-recreate ferreteria_abad_php_app ferreteria_abad_nginx_interno
             
-            # Limpia imágenes viejas de Docker para que el disco duro no se llene
+            # Limpia imágenes viejas o colgadas de Docker para proteger el disco
             docker image prune -f
             
-            # Ejecuta las migraciones automáticamente
+            # Destruir físicamente cachés residuales de vistas y rutas dentro del contenedor para evitar congelamientos
+            docker exec -i ferreteria_abad_php rm -rf storage/framework/views/*
+            docker exec -i ferreteria_abad_php rm -rf bootstrap/cache/*.php
+            
+            # Ejecuta las migraciones de base de datos de manera segura en producción (Sin Seeders)
             docker exec ferreteria_abad_php php artisan migrate --force
             
-            # Limpia la caché de Laravel para que tome los nuevos cambios
+            # Regenerar la caché limpia de Laravel
             docker exec ferreteria_abad_php php artisan optimize:clear
