@@ -17,6 +17,31 @@ use Illuminate\Support\Facades\DB;
 
 class VentasController extends Controller
 {
+    public function index(Request $request): View
+    {
+        $query = Sale::with(['client', 'worker', 'saleDetails.batch.product', 'saleDetails.batch.supplier']);
+
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // We clone the query to get the total revenue of the filtered dataset
+        $revenueQuery = clone $query;
+        $totalRevenue = $revenueQuery->sum('total_amount');
+
+        $sales = $query->orderBy('created_at', 'desc')->paginate(15);
+        $totalSalesCount = $sales->total();
+
+        return view('ventas.historial', compact('sales', 'totalSalesCount', 'totalRevenue', 'startDate', 'endDate'));
+    }
+
     public function create(): View
     {
         // Traer lotes que tengan stock disponible
