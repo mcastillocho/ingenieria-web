@@ -1,100 +1,125 @@
 @extends('layout.base')
 
-@section('title', 'Page Test — Base')
+@section('title', 'Dashboard — Ferretería Abad')
 @section('pageTitle', 'Ferretería Abad')
+
+@section('extraHead')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endsection
 
 @section('content')
     <div class="space-y-lg">
+        {{-- Tarjetas de Métricas --}}
         <section class="grid gap-lg lg:grid-cols-3">
             <x-ui.card variant="stats">
                 <x-slot name="title">Productos</x-slot>
                 <x-slot name="body">
-                    <p class="text-2xl font-bold text-ink">1,284</p>
-                    <p class="text-xs text-muted mt-sm">+12 esta semana</p>
+                    <p class="text-2xl font-bold text-ink">{{ number_format($totalProducts) }}</p>
+                    <p class="text-xs text-muted mt-sm">+{{ $productsNewThisWeek }} esta semana</p>
                 </x-slot>
             </x-ui.card>
 
             <x-ui.card variant="stats">
                 <x-slot name="title">Ventas hoy</x-slot>
                 <x-slot name="body">
-                    <p class="text-2xl font-bold text-ink">$4,320</p>
-                    <p class="text-xs text-muted mt-sm">+8.2% vs ayer</p>
+                    <p class="text-2xl font-bold text-ink">S/ {{ number_format($todaySalesSum, 2) }}</p>
+                    @if($percentageChange > 0)
+                        <p class="text-xs text-stock-ok mt-sm">+{{ number_format($percentageChange, 1) }}% vs ayer</p>
+                    @elseif($percentageChange < 0)
+                        <p class="text-xs text-stock-out mt-sm">{{ number_format($percentageChange, 1) }}% vs ayer</p>
+                    @else
+                        <p class="text-xs text-muted mt-sm">0% vs ayer</p>
+                    @endif
                 </x-slot>
             </x-ui.card>
 
             <x-ui.card variant="stats">
                 <x-slot name="title">Stock crítico</x-slot>
                 <x-slot name="body">
-                    <p class="text-2xl font-bold text-warning">7</p>
-                    <p class="text-xs text-muted mt-sm">3 sin stock</p>
+                    <p class="text-2xl font-bold {{ $outOfStock > 0 ? 'text-stock-out' : 'text-stock-low' }}">{{ $criticalStock }}</p>
+                    <p class="text-xs text-muted mt-sm">{{ $outOfStock }} sin stock, {{ $lowStock }} stock bajo</p>
                 </x-slot>
             </x-ui.card>
         </section>
 
+        {{-- Alertas del sistema --}}
+        @if(!empty($alerts))
         <section class="grid gap-lg">
             <x-ui.card variant="flat">
                 <x-slot name="title">Alertas del sistema</x-slot>
                 <x-slot name="body">
                     <div class="space-y-sm">
-                        <x-ui.alert>Información: el sistema se actualizó correctamente.</x-ui.alert>
-                        <x-ui.alert variant="success">Éxito: los datos de inventario se sincronizaron.</x-ui.alert>
-                        <x-ui.alert variant="warning">Advertencia: quedan pocos items en stock.</x-ui.alert>
-                        <x-ui.alert variant="danger">Error: no se pudo completar la operación.</x-ui.alert>
+                        @foreach($alerts as $alert)
+                            <x-ui.alert :variant="$alert['variant']">{{ $alert['message'] }}</x-ui.alert>
+                        @endforeach
                     </div>
                 </x-slot>
             </x-ui.card>
         </section>
+        @endif
 
+        {{-- Gráfico de ventas y Producto destacado --}}
         <section class="grid gap-lg lg:grid-cols-3">
             <x-ui.card variant="default" class="lg:col-span-2">
                 <x-slot name="title">Ventas últimos 7 días</x-slot>
                 <x-slot name="body">
-                    <div class="grid gap-sm">
-                        <div class="h-48 rounded-lg bg-canvas-alt border border-line flex items-center justify-center text-muted">
-                            Gráfico de ventas (placeholder)
-                        </div>
-                        <div class="flex flex-wrap gap-sm">
-                            <x-ui.button variant="ghost" size="sm">Hoy</x-ui.button>
-                            <x-ui.button variant="ghost" size="sm">Semana</x-ui.button>
-                            <x-ui.button variant="ghost" size="sm">Mes</x-ui.button>
-                        </div>
+                    <div class="h-64 w-full relative">
+                        <canvas id="salesChart"></canvas>
                     </div>
                 </x-slot>
             </x-ui.card>
 
+            @if($featuredProduct)
             <x-ui.card variant="highlighted">
                 <x-slot name="title">Producto destacado</x-slot>
                 <x-slot name="body">
                     <div class="space-y-md">
                         <div>
-                            <p class="text-xs text-muted uppercase tracking-wide">Taladro Percutor</p>
-                            <h3 class="text-ink font-semibold text-lg">HP-2000</h3>
-                            <p class="text-ink-soft text-sm">Motor 1200W con sistema antivibración.</p>
+                            <p class="text-xs text-muted uppercase tracking-wide font-medium">{{ $featuredProduct->category_name }}</p>
+                            <h3 class="text-ink font-semibold text-lg mt-xs">{{ $featuredProduct->name }}</h3>
+                            <p class="text-ink-soft text-sm mt-xs line-clamp-3">{{ $featuredProduct->description ?? 'Sin descripción disponible.' }}</p>
                         </div>
-                        <div class="flex items-center justify-between gap-sm">
+                        <div class="flex items-center justify-between gap-sm pt-sm border-t border-line">
                             <div class="space-y-1">
-                                <x-ui.price>$89.99</x-ui.price>
-                                <x-ui.price variant="previous">$124.99</x-ui.price>
+                                <x-ui.price>S/ {{ number_format($featuredProduct->sale_price, 2) }}</x-ui.price>
+                                <x-ui.price variant="previous">S/ {{ number_format($featuredProduct->sale_price * 1.25, 2) }}</x-ui.price>
                             </div>
-                            <x-ui.badge variant="ok">Stock OK</x-ui.badge>
+                            @if($featuredProduct->current_stock == 0)
+                                <x-ui.badge variant="out">Sin stock</x-ui.badge>
+                            @elseif($featuredProduct->current_stock <= 10)
+                                <x-ui.badge variant="low">Stock Bajo</x-ui.badge>
+                            @else
+                                <x-ui.badge variant="ok">Stock OK</x-ui.badge>
+                            @endif
                         </div>
                     </div>
                 </x-slot>
             </x-ui.card>
+            @else
+            <x-ui.card variant="highlighted">
+                <x-slot name="title">Producto destacado</x-slot>
+                <x-slot name="body">
+                    <div class="py-lg text-center text-muted">
+                        No hay productos registrados en el sistema.
+                    </div>
+                </x-slot>
+            </x-ui.card>
+            @endif
         </section>
 
+        {{-- Indicadores clave y Últimos productos --}}
         <section class="grid gap-lg lg:grid-cols-2">
             <x-ui.card variant="flat">
                 <x-slot name="title">Indicadores clave</x-slot>
                 <x-slot name="body">
                     <div class="grid gap-sm">
                         <div class="bg-canvas-alt rounded-lg p-md border border-line">
-                            <p class="text-xs text-muted uppercase tracking-wide">Pedidos activos</p>
-                            <p class="text-2xl font-bold text-ink">32</p>
+                            <p class="text-xs text-muted uppercase tracking-wide font-semibold">Clientes registrados</p>
+                            <p class="text-2xl font-bold text-ink mt-xs">{{ number_format($totalClients) }}</p>
                         </div>
                         <div class="bg-canvas-alt rounded-lg p-md border border-line">
-                            <p class="text-xs text-muted uppercase tracking-wide">Ticket promedio</p>
-                            <p class="text-2xl font-bold text-ink">$74.50</p>
+                            <p class="text-xs text-muted uppercase tracking-wide font-semibold">Ticket promedio</p>
+                            <p class="text-2xl font-bold text-ink mt-xs">S/ {{ number_format($averageTicket, 2) }}</p>
                         </div>
                     </div>
                 </x-slot>
@@ -106,87 +131,100 @@
                     <x-ui.data-table>
                         <x-slot name="header">
                             <tr>
-                                <th class="px-md py-sm">Producto</th>
-                                <th class="px-md py-sm">Stock</th>
-                                <th class="px-md py-sm">Estado</th>
+                                <th class="px-md py-sm font-semibold">Producto</th>
+                                <th class="px-md py-sm font-semibold">Stock</th>
+                                <th class="px-md py-sm font-semibold text-right">Estado</th>
                             </tr>
                         </x-slot>
+                        @forelse($recentProducts as $prod)
                         <tr class="hover:bg-canvas-alt">
-                            <td class="px-md py-sm">Taladro</td>
-                            <td class="px-md py-sm">56</td>
-                            <td class="px-md py-sm"><x-ui.badge variant="ok">OK</x-ui.badge></td>
+                            <td class="px-md py-sm font-medium text-ink truncate max-w-[180px]">{{ $prod['name'] }}</td>
+                            <td class="px-md py-sm text-ink-soft">{{ $prod['stock'] }}</td>
+                            <td class="px-md py-sm text-right"><x-ui.badge :variant="$prod['badge_variant']">{{ $prod['badge_text'] }}</x-ui.badge></td>
                         </tr>
-                        <tr class="hover:bg-canvas-alt">
-                            <td class="px-md py-sm">Sierra</td>
-                            <td class="px-md py-sm">12</td>
-                            <td class="px-md py-sm"><x-ui.badge variant="low">Bajo</x-ui.badge></td>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="px-md py-md text-center text-muted">No hay productos registrados.</td>
                         </tr>
-                        <tr class="hover:bg-canvas-alt">
-                            <td class="px-md py-sm">Llave Inglesa</td>
-                            <td class="px-md py-sm">0</td>
-                            <td class="px-md py-sm"><x-ui.badge variant="out">Sin stock</x-ui.badge></td>
-                        </tr>
+                        @endforelse
                     </x-ui.data-table>
                 </x-slot>
             </x-ui.card>
         </section>
 
-        <section class="grid gap-lg">
-            <x-ui.card variant="flat">
-                <x-slot name="title">Alertas del sistema</x-slot>
-                <x-slot name="body">
-                    <div class="space-y-sm">
-                        <x-ui.alert>Información: el sistema se actualizó correctamente.</x-ui.alert>
-                        <x-ui.alert variant="success">Éxito: los datos de inventario se sincronizaron.</x-ui.alert>
-                        <x-ui.alert variant="warning">Advertencia: quedan pocos items en stock.</x-ui.alert>
-                        <x-ui.alert variant="danger">Error: no se pudo completar la operación.</x-ui.alert>
-                    </div>
-                </x-slot>
-            </x-ui.card>
-        </section>
-
+        {{-- Tarjetas de producto inferiores --}}
+        @if($bottomProducts->isNotEmpty())
         <section class="grid gap-lg xl:grid-cols-3">
+            @foreach($bottomProducts as $prod)
             <x-ui.product-card>
                 <x-slot name="image">
-                    <img src="https://via.placeholder.com/400x240" alt="Taladro" class="w-full" />
+                    <img src="{{ $prod['image_path'] }}" alt="{{ $prod['name'] }}" class="w-full h-full object-cover" />
                 </x-slot>
-                <x-slot name="title">Taladro Percutor</x-slot>
-                <x-slot name="subtitle">HP-2000 • DeWalt</x-slot>
-                <x-slot name="description">Taladro profesional con 1200W y sistema antivibración.</x-slot>
-                <x-slot name="price"><x-ui.price>$89.99</x-ui.price></x-slot>
-                <x-slot name="previousPrice">$124.99</x-slot>
-                <x-slot name="stockText">Stock: 42</x-slot>
-                <x-slot name="stockBadge"><x-ui.badge variant="ok">Stock OK</x-ui.badge></x-slot>
-                <x-slot name="footer"><x-ui.button class="w-full">Agregar</x-ui.button></x-slot>
-            </x-ui.product-card>
-
-            <x-ui.product-card>
-                <x-slot name="image">
-                    <img src="https://via.placeholder.com/400x240" alt="Sierra" class="w-full" />
+                <x-slot name="title">{{ $prod['name'] }}</x-slot>
+                <x-slot name="subtitle">{{ $prod['supplier'] }} • {{ $prod['category'] }}</x-slot>
+                <x-slot name="description">{{ $prod['description'] }}</x-slot>
+                <x-slot name="price"><x-ui.price>S/ {{ number_format((float) $prod['sale_price'], 2) }}</x-ui.price></x-slot>
+                <x-slot name="previousPrice">S/ {{ number_format((float) $prod['previous_price'], 2) }}</x-slot>
+                <x-slot name="stockText">Stock: {{ $prod['stock'] }}</x-slot>
+                <x-slot name="stockBadge"><x-ui.badge :variant="$prod['badge_variant']">{{ $prod['badge_text'] }}</x-ui.badge></x-slot>
+                <x-slot name="footer">
+                    <x-ui.button class="w-full" href="/productos">Ver más</x-ui.button>
                 </x-slot>
-                <x-slot name="title">Sierra Circular</x-slot>
-                <x-slot name="subtitle">SC-7 • Makita</x-slot>
-                <x-slot name="description">Sierra circular con guía láser y freno de seguridad.</x-slot>
-                <x-slot name="price"><x-ui.price>$159.00</x-ui.price></x-slot>
-                <x-slot name="previousPrice">$189.99</x-slot>
-                <x-slot name="stockText">Stock: 0</x-slot>
-                <x-slot name="stockBadge"><x-ui.badge variant="out">Sin stock</x-ui.badge></x-slot>
-                <x-slot name="footer"><x-ui.button class="w-full">Ver más</x-ui.button></x-slot>
             </x-ui.product-card>
-
-            <x-ui.product-card>
-                <x-slot name="image">
-                    <img src="https://via.placeholder.com/400x240" alt="Cinta Métrica" class="w-full" />
-                </x-slot>
-                <x-slot name="title">Cinta Métrica</x-slot>
-                <x-slot name="subtitle">CM-5 • Stanley</x-slot>
-                <x-slot name="description">Cinta métrica de 5 metros con gancho magnético y freno rápido.</x-slot>
-                <x-slot name="price"><x-ui.price>$8.75</x-ui.price></x-slot>
-                <x-slot name="previousPrice">$12.50</x-slot>
-                <x-slot name="stockText">Stock: 120</x-slot>
-                <x-slot name="stockBadge"><x-ui.badge variant="ok">OK</x-ui.badge></x-slot>
-                <x-slot name="footer"><x-ui.button class="w-full">Ver más</x-ui.button></x-slot>
-            </x-ui.product-card>
+            @endforeach
         </section>
+        @endif
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const salesData = @json($salesLast7Days);
+            
+            const labels = salesData.map(item => item.date);
+            const data = salesData.map(item => item.total);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ventas (S/)',
+                        data: data,
+                        backgroundColor: '#0ea5e9', // Sky 500
+                        borderColor: '#0284c7', // Sky 600
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.15)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'S/ ' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection

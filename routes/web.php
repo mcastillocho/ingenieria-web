@@ -16,9 +16,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/me', [AuthController::class, 'me']);
 
 Route::middleware([EnsureAuthenticated::class])->group(function () {
-    Route::get('/', function () {
-        return view('welcome');
-    });
+    Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index']);
 
     // Lotes
     Route::get('/lotes',         [LotesController::class, 'index'])->name('lotes.index');
