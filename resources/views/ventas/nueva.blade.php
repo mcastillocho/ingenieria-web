@@ -34,6 +34,9 @@
                          data-stock="{{ $batch->current_stock }}">
                         
                         <x-ui.product-card>
+                            <x-slot name="image">
+                                <img src="{{ $batch->product->image_path ?? 'https://via.placeholder.com/400x240' }}" alt="{{ $batch->product->name }}" class="w-full h-full object-cover" />
+                            </x-slot>
                             <x-slot name="title">{{ $batch->product->name }}</x-slot>
                             <x-slot name="subtitle">{{ $batch->supplier->name ?? 'Sin Proveedor' }}</x-slot>
                             <x-slot name="description">{{ $batch->product->productCategory->name ?? 'Varios' }}</x-slot>

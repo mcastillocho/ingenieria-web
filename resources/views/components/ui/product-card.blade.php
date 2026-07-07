@@ -18,34 +18,36 @@
 --}}
 @props(['variant' => 'default'])
 
-<div {{ $attributes->merge(['class' => 'product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden']) }}>
+<div {{ $attributes->merge(['class' => 'product-card bg-surface border border-line rounded-lg shadow-card overflow-hidden flex flex-col h-full']) }}>
     @isset($image)
-    <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted overflow-hidden">
+    <div class="h-40 bg-canvas-alt border-b border-line flex items-center justify-center text-muted overflow-hidden flex-shrink-0">
         {{ $image }}
     </div>
     @endisset
 
-    <div class="p-md">
-        <div class="flex items-start justify-between gap-sm">
-            <div>
-                @isset($title)
-                <h4 class="font-semibold text-ink">{{ $title }}</h4>
-                @endisset
-                @isset($subtitle)
-                <p class="text-xs text-muted">{{ $subtitle }}</p>
-                @endisset
-                @isset($sku)
-                <p class="text-xs uppercase tracking-wide text-muted mt-xs">{{ $sku }}</p>
+    <div class="p-md flex-1 flex flex-col justify-between">
+        <div>
+            <div class="flex items-start justify-between gap-sm">
+                <div>
+                    @isset($title)
+                    <h4 class="font-semibold text-ink">{{ $title }}</h4>
+                    @endisset
+                    @isset($subtitle)
+                    <p class="text-xs text-muted">{{ $subtitle }}</p>
+                    @endisset
+                    @isset($sku)
+                    <p class="text-xs uppercase tracking-wide text-muted mt-xs">{{ $sku }}</p>
+                    @endisset
+                </div>
+                @isset($stockBadge)
+                <div>{{ $stockBadge }}</div>
                 @endisset
             </div>
-            @isset($stockBadge)
-            <div>{{ $stockBadge }}</div>
+
+            @isset($description)
+            <p class="text-sm text-ink-soft mt-sm truncate-2">{{ $description }}</p>
             @endisset
         </div>
-
-        @isset($description)
-        <p class="text-sm text-ink-soft mt-sm truncate-2">{{ $description }}</p>
-        @endisset
 
         @if(isset($price) || isset($previousPrice) || isset($stockText))
         <div class="mt-md flex items-center justify-between border-t border-line pt-md">
@@ -65,6 +67,6 @@
     </div>
 
     @isset($footer)
-    <div class="px-md py-sm border-t border-line bg-canvas-alt">{{ $footer }}</div>
+    <div class="px-md py-sm border-t border-line bg-canvas-alt flex-shrink-0">{{ $footer }}</div>
     @endisset
 </div>
