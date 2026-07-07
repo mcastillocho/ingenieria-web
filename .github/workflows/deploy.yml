@@ -85,18 +85,19 @@ jobs:
             # Descarga la imagen más reciente
             docker compose pull ferreteria_abad_php_app
             
-            # RECREAR A LA FUERZA tanto PHP como el NGINX interno.
-            # Esto desbloquea el volumen compartido 'app_code' y monta los assets frescos de Vite.
-            docker compose up -d --force-recreate ferreteria_abad_php_app ferreteria_abad_nginx_interno
+            # Apaga por completo el contenedor
+            docker compose down
             
-            # Limpia imágenes viejas o colgadas de Docker para proteger el disco
+            # Elimina el volumen de ferreteria_abad_app_code con el código viejo
+            docker volume rm -f ferreteria-abad_app_code
+            
+            # Levanta el stack desde cero
+            docker compose up -d
+            
+            # Limpieza de imágenes Docker huérfanas
             docker image prune -f
             
-            # Destruir físicamente cachés residuales de vistas y rutas dentro del contenedor para evitar congelamientos
-            docker exec -i ferreteria_abad_php rm -rf storage/framework/views/*
-            docker exec -i ferreteria_abad_php rm -rf bootstrap/cache/*.php
-            
-            # Ejecuta las migraciones de base de datos de manera segura en producción (Sin Seeders)
+            # Inicializar el entorno interno de Laravel
             docker exec ferreteria_abad_php php artisan migrate --force
             
             # Regenerar la caché limpia de Laravel
