@@ -47,4 +47,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::post('/descuentos',              [\App\Http\Controllers\DescuentosController::class, 'store'])->name('descuentos.store');
     Route::put('/descuentos/{discount}',    [\App\Http\Controllers\DescuentosController::class, 'update'])->name('descuentos.update');
     Route::post('/ventas/validar-descuento', [\App\Http\Controllers\VentasController::class, 'validateDiscount'])->name('ventas.validar-descuento');
+
+    // Clientes
+    Route::get('/clientes',                 [\App\Http\Controllers\ClientesController::class, 'index'])->name('clientes.index');
+    Route::post('/clientes',                [\App\Http\Controllers\ClientesController::class, 'store'])->name('clientes.store');
+    Route::put('/clientes/{client}',        [\App\Http\Controllers\ClientesController::class, 'update'])->name('clientes.update');
 });
