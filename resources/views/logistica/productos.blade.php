@@ -105,6 +105,7 @@
                 data-name="{{ $product->name }}"
                 data-sale-price="{{ $product->sale_price }}"
                 data-description="{{ $product->description }}"
+                data-image-path="{{ $product->image_path }}"
             >
                 <td class="px-md py-sm text-muted text-xs font-mono">{{ $product->id }}</td>
                 <td class="px-md py-sm font-medium text-ink">{{ $product->name }}</td>
@@ -240,6 +241,12 @@
                                  resize-none"></textarea>
             </div>
 
+            <x-forms.input
+                label="URL de la imagen (opcional)"
+                name="image_path"
+                placeholder="Ej: https://imagenes.com/producto.jpg"
+            />
+
         </form>
     </div>
 
@@ -272,6 +279,7 @@
     const inputName      = document.getElementById('name');
     const inputSalePrice = document.getElementById('sale_price');
     const inputDesc      = document.getElementById('description');
+    const inputImagePath = document.getElementById('image_path');
 
     // Toggle Categoría
     const modeCatExisting    = document.getElementById('mode-cat-existing');
@@ -327,6 +335,7 @@
         inputName.value      = '';
         inputSalePrice.value = '';
         inputDesc.value      = '';
+        inputImagePath.value = '';
         setNewCategoryMode(false);
         inputNewCatName.value = '';
         btnSwitchNewCat.style.display = 'inline';
@@ -343,6 +352,7 @@
         inputName.value      = row.dataset.name     || '';
         inputSalePrice.value = row.dataset.salePrice|| '';
         inputDesc.value      = row.dataset.description || '';
+        inputImagePath.value = row.dataset.imagePath || '';
         setNewCategoryMode(false);
         btnSwitchNewCat.style.display = 'none';
     }

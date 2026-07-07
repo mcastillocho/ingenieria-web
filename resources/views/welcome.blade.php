@@ -48,9 +48,11 @@
             <x-ui.card variant="flat">
                 <x-slot name="title">Alertas del sistema</x-slot>
                 <x-slot name="body">
-                    <div class="space-y-sm">
+                    <div class="grid gap-md grid-cols-1 md:grid-flow-col md:auto-cols-fr">
                         @foreach($alerts as $alert)
-                            <x-ui.alert :variant="$alert['variant']">{{ $alert['message'] }}</x-ui.alert>
+                            <x-ui.alert :variant="$alert['variant']" class="block w-full h-full">
+                                {{ $alert['message'] }}
+                            </x-ui.alert>
                         @endforeach
                     </div>
                 </x-slot>

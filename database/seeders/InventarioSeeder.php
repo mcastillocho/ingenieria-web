@@ -33,31 +33,118 @@ class InventarioSeeder extends Seeder
         // ── 2. Productos ───────────────────────────────────────────────────
         $products = [
             // Herramientas Eléctricas
-            ['product_category_id' => $catIds['Herramientas Eléctricas'], 'name' => 'Taladro Percutor 750W',       'description' => 'Taladro percutor de 750W con mandril de 13mm, 2 velocidades y función martillo.',  'sale_price' => 189.90],
-            ['product_category_id' => $catIds['Herramientas Eléctricas'], 'name' => 'Amoladora Angular 4.5"',     'description' => 'Amoladora angular de 900W con disco de 115mm y protección de seguridad.',          'sale_price' => 129.50],
-            ['product_category_id' => $catIds['Herramientas Eléctricas'], 'name' => 'Sierra Circular 1200W',      'description' => 'Sierra circular de 1200W con profundidad de corte de 65mm y guía de corte.',      'sale_price' => 249.00],
-            ['product_category_id' => $catIds['Herramientas Eléctricas'], 'name' => 'Lijadora Orbital 300W',      'description' => 'Lijadora orbital de 300W con plato de 125mm y bolsa de polvo.',                    'sale_price' => 89.90],
+            [
+                'product_category_id' => $catIds['Herramientas Eléctricas'],
+                'name' => 'Taladro Percutor 750W',
+                'description' => 'Taladro percutor de 750W con mandril de 13mm, 2 velocidades y función martillo.',
+                'sale_price' => 189.90,
+                'image_path' => 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Eléctricas'],
+                'name' => 'Amoladora Angular 4.5"',
+                'description' => 'Amoladora angular de 900W con disco de 115mm y protección de seguridad.',
+                'sale_price' => 129.50,
+                'image_path' => 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Eléctricas'],
+                'name' => 'Sierra Circular 1200W',
+                'description' => 'Sierra circular de 1200W con profundidad de corte de 65mm y guía de corte.',
+                'sale_price' => 249.00,
+                'image_path' => 'https://ventasyofertas.com.pe/wp-content/uploads/2023/10/JDCW1512001-1.jpg'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Eléctricas'],
+                'name' => 'Lijadora Orbital 300W',
+                'description' => 'Lijadora orbital de 300W con plato de 125mm y bolsa de polvo.',
+                'sale_price' => 89.90,
+                'image_path' => 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80'
+            ],
             // Herramientas Manuales
-            ['product_category_id' => $catIds['Herramientas Manuales'],   'name' => 'Juego de Desarmadores x12', 'description' => 'Set de 12 desarmadores con mango ergonómico: 6 planos y 6 Phillips.',             'sale_price' => 45.00],
-            ['product_category_id' => $catIds['Herramientas Manuales'],   'name' => 'Martillo Carpintero 20oz',  'description' => 'Martillo de carpintero con cabeza de acero forjado y mango de fibra de vidrio.',  'sale_price' => 38.50],
-            ['product_category_id' => $catIds['Herramientas Manuales'],   'name' => 'Llave Francesa 12"',        'description' => 'Llave francesa de 12 pulgadas con apertura ajustable hasta 35mm.',               'sale_price' => 29.90],
-            ['product_category_id' => $catIds['Herramientas Manuales'],   'name' => 'Nivel de Burbuja 60cm',     'description' => 'Nivel de aluminio de 60cm con 3 burbujas y precisión de 0.5mm/m.',               'sale_price' => 35.00],
+            [
+                'product_category_id' => $catIds['Herramientas Manuales'],
+                'name' => 'Juego de Desarmadores x12',
+                'description' => 'Set de 12 desarmadores con mango ergonómico: 6 planos y 6 Phillips.',
+                'sale_price' => 45.00,
+                'image_path' => 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Manuales'],
+                'name' => 'Martillo Carpintero 20oz',
+                'description' => 'Martillo de carpintero con cabeza de acero forjado y mango de fibra de vidrio.',
+                'sale_price' => 38.50,
+                'image_path' => 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Manuales'],
+                'name' => 'Llave Francesa 12"',
+                'description' => 'Llave francesa de 12 pulgadas con apertura ajustable hasta 35mm.',
+                'sale_price' => 29.90,
+                'image_path' => 'https://images.unsplash.com/photo-1608613304899-ea8098577e38?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Herramientas Manuales'],
+                'name' => 'Nivel de Burbuja 60cm',
+                'description' => 'Nivel de aluminio de 60cm con 3 burbujas y precisión de 0.5mm/m.',
+                'sale_price' => 35.00,
+                'image_path' => 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80'
+            ],
             // Fijaciones y Tornillería
-            ['product_category_id' => $catIds['Fijaciones y Tornillería'], 'name' => 'Tornillos Autoperforantes x100', 'description' => 'Caja de 100 tornillos autoperforantes punta fina 4x25mm zincados.',        'sale_price' => 12.50],
-            ['product_category_id' => $catIds['Fijaciones y Tornillería'], 'name' => 'Tacos Fischer S10 x50',    'description' => 'Caja de 50 tacos de expansión Fischer S10 para paredes de concreto.',             'sale_price' => 18.00],
+            [
+                'product_category_id' => $catIds['Fijaciones y Tornillería'],
+                'name' => 'Tornillos Autoperforantes x100',
+                'description' => 'Caja de 100 tornillos autoperforantes punta fina 4x25mm zincados.',
+                'sale_price' => 12.50,
+                'image_path' => 'https://images.unsplash.com/photo-1590233649079-c709e3940176?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Fijaciones y Tornillería'],
+                'name' => 'Tacos Fischer S10 x50',
+                'description' => 'Caja de 50 tacos de expansión Fischer S10 para paredes de concreto.',
+                'sale_price' => 18.00,
+                'image_path' => 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=400&q=80'
+            ],
             // Pinturas y Acabados
-            ['product_category_id' => $catIds['Pinturas y Acabados'],     'name' => 'Pintura Látex Blanco 4L',   'description' => 'Pintura látex lavable interior/exterior, rendimiento 10m²/L, secado 2h.',        'sale_price' => 65.00],
-            ['product_category_id' => $catIds['Pinturas y Acabados'],     'name' => 'Sellador Acrílico 1L',      'description' => 'Sellador acrílico para interiores, secado rápido y de fácil lijado.',            'sale_price' => 28.00],
+            [
+                'product_category_id' => $catIds['Pinturas y Acabados'],
+                'name' => 'Pintura Látex Blanco 4L',
+                'description' => 'Pintura látex lavable interior/exterior, rendimiento 10m²/L, secado 2h.',
+                'sale_price' => 65.00,
+                'image_path' => 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Pinturas y Acabados'],
+                'name' => 'Sellador Acrílico 1L',
+                'description' => 'Sellador acrílico para interiores, secado rápido y de fácil lijado.',
+                'sale_price' => 28.00,
+                'image_path' => 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=400&q=80'
+            ],
             // Plomería
-            ['product_category_id' => $catIds['Plomería'],                'name' => 'Tubo PVC 1/2" x 3m',        'description' => 'Tubo PVC presión clase 10 para instalaciones de agua fría.',                   'sale_price' => 8.50],
-            ['product_category_id' => $catIds['Plomería'],                'name' => 'Codo PVC 1/2" x10',         'description' => 'Bolsa de 10 codos PVC 90° para instalaciones de agua.',                       'sale_price' => 5.00],
+            [
+                'product_category_id' => $catIds['Plomería'],
+                'name' => 'Tubo PVC 1/2" x 3m',
+                'description' => 'Tubo PVC presión clase 10 para instalaciones de agua fría.',
+                'sale_price' => 8.50,
+                'image_path' => 'https://images.unsplash.com/photo-1604147706283-d7119b5b822c?auto=format&fit=crop&w=400&q=80'
+            ],
+            [
+                'product_category_id' => $catIds['Plomería'],
+                'name' => 'Codo PVC 1/2" x10',
+                'description' => 'Bolsa de 10 codos PVC 90° para instalaciones de agua.',
+                'sale_price' => 5.00,
+                'image_path' => 'https://images.unsplash.com/photo-1581092334860-93c6f809930f?auto=format&fit=crop&w=400&q=80'
+            ],
         ];
 
         foreach ($products as $product) {
-            DB::table('products')->insertOrIgnore(array_merge($product, [
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]));
+            DB::table('products')->updateOrInsert(
+                ['name' => $product['name']],
+                array_merge($product, [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ])
+            );
         }
 
         $productIds = DB::table('products')->pluck('id', 'name');

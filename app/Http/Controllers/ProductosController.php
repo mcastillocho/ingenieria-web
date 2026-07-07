@@ -41,6 +41,7 @@ class ProductosController extends Controller
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:1000',
             'sale_price'  => 'required|numeric|min:0.01',
+            'image_path'  => 'nullable|string|max:2048',
         ]);
 
         Product::create([
@@ -48,6 +49,7 @@ class ProductosController extends Controller
             'name'                => $request->name,
             'description'         => $request->description,
             'sale_price'          => $request->sale_price,
+            'image_path'          => $request->image_path,
         ]);
 
         return redirect()->route('productos.index')
@@ -71,6 +73,7 @@ class ProductosController extends Controller
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:1000',
             'sale_price'  => 'required|numeric|min:0.01',
+            'image_path'  => 'nullable|string|max:2048',
         ]);
 
         $producto->update([
@@ -78,6 +81,7 @@ class ProductosController extends Controller
             'name'                => $request->name,
             'description'         => $request->description,
             'sale_price'          => $request->sale_price,
+            'image_path'          => $request->image_path,
         ]);
 
         return redirect()->route('productos.index')
