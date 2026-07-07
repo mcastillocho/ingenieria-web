@@ -5,59 +5,56 @@
 
 @section('content')
 <div class="flex flex-col gap-lg">
-    {{-- Filtros y Métricas --}}
-    <div class="flex flex-col lg:flex-row gap-lg">
-        {{-- Tarjetas de Métricas --}}
-        <div class="flex flex-1 gap-md">
-            <x-ui.card class="flex-1">
-                <div class="flex items-center gap-md">
-                    <div class="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm text-ink-soft">Total Ventas</p>
-                        <p class="text-2xl font-bold text-ink">{{ $totalSalesCount }}</p>
-                    </div>
+    {{-- Tarjetas de Métricas --}}
+    <div class="grid gap-md sm:grid-cols-2">
+        <x-ui.card variant="stats">
+            <div class="px-md py-md flex items-center gap-md">
+                <div class="w-12 h-12 rounded-full bg-accent-soft text-accent flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
                 </div>
-            </x-ui.card>
-            
-            <x-ui.card class="flex-1">
-                <div class="flex items-center gap-md">
-                    <div class="w-12 h-12 rounded-full bg-stock-ok/20 text-stock-ok flex items-center justify-center">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm text-ink-soft">Ingresos (S/)</p>
-                        <p class="text-2xl font-bold text-ink">S/ {{ number_format($totalRevenue, 2) }}</p>
-                    </div>
+                <div>
+                    <p class="text-xs text-muted uppercase tracking-wide font-medium">Total Ventas</p>
+                    <p class="text-2xl font-bold text-ink">{{ $totalSalesCount }}</p>
                 </div>
-            </x-ui.card>
-        </div>
-
-        {{-- Formulario de Filtros --}}
-        <x-ui.card class="lg:w-96">
-            <form action="{{ route('ventas.historial') }}" method="GET" class="flex flex-col gap-sm">
-                <div class="flex items-center gap-sm">
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-ink-soft mb-1">Desde</label>
-                        <input type="date" name="start_date" value="{{ $startDate }}" class="w-full text-sm rounded-md border border-line bg-white px-md py-sm focus:border-accent focus:ring-2 focus:outline-none">
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-xs font-medium text-ink-soft mb-1">Hasta</label>
-                        <input type="date" name="end_date" value="{{ $endDate }}" class="w-full text-sm rounded-md border border-line bg-white px-md py-sm focus:border-accent focus:ring-2 focus:outline-none">
-                    </div>
+            </div>
+        </x-ui.card>
+        
+        <x-ui.card variant="stats">
+            <div class="px-md py-md flex items-center gap-md">
+                <div class="w-12 h-12 rounded-full bg-stock-ok/20 text-stock-ok flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
                 </div>
-                <div class="flex gap-sm">
-                    <a href="{{ route('ventas.historial') }}" class="flex-1 text-center py-sm rounded-md text-sm font-medium bg-canvas-alt text-ink-soft hover:bg-line transition-colors">Limpiar</a>
-                    <button type="submit" class="flex-1 py-sm rounded-md text-sm font-medium bg-accent text-white hover:bg-accent-hover transition-colors">Filtrar</button>
+                <div>
+                    <p class="text-xs text-muted uppercase tracking-wide font-medium">Ingresos (S/)</p>
+                    <p class="text-2xl font-bold text-ink">S/ {{ number_format($totalRevenue, 2) }}</p>
                 </div>
-            </form>
+            </div>
         </x-ui.card>
     </div>
+
+    {{-- Formulario de Filtros --}}
+    <x-ui.card>
+        <form action="{{ route('ventas.historial') }}" method="GET" class="px-md py-md flex flex-col md:flex-row md:items-end gap-md">
+            <div class="flex-1 flex gap-md">
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-ink-soft mb-1">Fecha Desde</label>
+                    <input type="date" name="start_date" value="{{ $startDate }}" class="w-full text-sm rounded-md border border-line bg-white px-md py-sm focus:border-accent focus:ring-2 focus:outline-none">
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-medium text-ink-soft mb-1">Fecha Hasta</label>
+                    <input type="date" name="end_date" value="{{ $endDate }}" class="w-full text-sm rounded-md border border-line bg-white px-md py-sm focus:border-accent focus:ring-2 focus:outline-none">
+                </div>
+            </div>
+            <div class="flex gap-sm shrink-0">
+                <a href="{{ route('ventas.historial') }}" class="px-lg py-sm rounded-md text-sm font-medium bg-canvas-alt text-ink-soft hover:bg-line transition-colors text-center min-w-[100px]">Limpiar</a>
+                <button type="submit" class="px-lg py-sm rounded-md text-sm font-medium bg-accent text-white hover:bg-accent-hover transition-colors min-w-[100px]">Filtrar</button>
+            </div>
+        </form>
+    </x-ui.card>
 
     {{-- Tabla de Ventas --}}
     <x-ui.card>
@@ -92,17 +89,17 @@
                         <td class="px-md py-sm text-right">
                             <button type="button" 
                                     class="btn-view-details text-accent hover:text-accent-hover font-medium text-sm transition-colors"
-                                    data-sale='@json([
-                                        "id" => str_pad($sale->id, 6, "0", STR_PAD_LEFT),
-                                        "client" => ($sale->client->name ?? "Cliente General") . " " . ($sale->client->lastname ?? ""),
-                                        "date" => $sale->created_at->format("d/m/Y H:i"),
-                                        "total" => "S/ " . number_format($sale->total_amount, 2),
-                                        "details" => $sale->saleDetails->map(fn($detail) => [
-                                            "quantity" => $detail->quantity,
-                                            "name" => ($detail->batch->product->name ?? "Producto") . " (" . ($detail->batch->supplier->name ?? "Sin Prov.") . ")",
-                                            "subtotal" => "S/ " . number_format($detail->quantity * $detail->unit_price, 2)
+                                    data-sale="{{ json_encode([
+                                        'id' => str_pad($sale->id, 6, '0', STR_PAD_LEFT),
+                                        'client' => ($sale->client->name ?? 'Cliente General') . ' ' . ($sale->client->lastname ?? ''),
+                                        'date' => $sale->created_at->format('d/m/Y H:i'),
+                                        'total' => 'S/ ' . number_format($sale->total_amount, 2),
+                                        'details' => $sale->saleDetails->map(fn($detail) => [
+                                            'quantity' => $detail->quantity,
+                                            'name' => ($detail->batch->product->name ?? 'Producto') . ' (' . ($detail->batch->supplier->name ?? 'Sin Prov.') . ')',
+                                            'subtotal' => 'S/ ' . number_format($detail->quantity * $detail->unit_price, 2)
                                         ])
-                                    ])'>
+                                    ]) }}">
                                 Ver Detalles
                             </button>
                         </td>
