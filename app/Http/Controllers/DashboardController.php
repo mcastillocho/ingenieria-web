@@ -157,7 +157,6 @@ class DashboardController extends Controller
                 'category' => $product->productCategory->name ?? 'Varios',
                 'description' => $product->description ?? 'Sin descripción disponible.',
                 'sale_price' => $product->sale_price,
-                'previous_price' => $product->sale_price * 1.25,
                 'stock' => $currentStock,
                 'badge_variant' => $badgeVariant,
                 'badge_text' => $badgeText,

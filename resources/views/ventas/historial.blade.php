@@ -87,19 +87,26 @@
                             S/ {{ number_format($sale->total_amount, 2) }}
                         </td>
                         <td class="px-md py-sm text-right">
+                            @php
+                                $totalDiscount = $sale->saleDetails->sum('discount_amount');
+                                $appliedDiscountDetail = $sale->saleDetails->firstWhere('discount_id', '!=', null);
+                                $discountCode = $appliedDiscountDetail ? ($appliedDiscountDetail->discount->code ?? 'CUPÓN') : null;
+                            @endphp
                             <button type="button" 
                                     class="btn-view-details text-accent hover:text-accent-hover font-medium text-sm transition-colors"
                                     data-sale="{{ json_encode([
-                                        'id' => str_pad($sale->id, 6, '0', STR_PAD_LEFT),
-                                        'client' => ($sale->client->name ?? 'Cliente General') . ' ' . ($sale->client->lastname ?? ''),
-                                        'date' => $sale->created_at->format('d/m/Y H:i'),
-                                        'total' => 'S/ ' . number_format($sale->total_amount, 2),
-                                        'details' => $sale->saleDetails->map(fn($detail) => [
-                                            'quantity' => $detail->quantity,
-                                            'name' => ($detail->batch->product->name ?? 'Producto') . ' (' . ($detail->batch->supplier->name ?? 'Sin Prov.') . ')',
-                                            'subtotal' => 'S/ ' . number_format($detail->quantity * $detail->unit_price, 2)
-                                        ])
-                                    ]) }}">
+                                         'id' => str_pad($sale->id, 6, '0', STR_PAD_LEFT),
+                                         'client' => ($sale->client->name ?? 'Cliente General') . ' ' . ($sale->client->lastname ?? ''),
+                                         'date' => $sale->created_at->format('d/m/Y H:i'),
+                                         'total' => 'S/ ' . number_format($sale->total_amount, 2),
+                                         'discount_amount' => $totalDiscount > 0 ? 'S/ ' . number_format($totalDiscount, 2) : null,
+                                         'discount_code' => $discountCode,
+                                         'details' => $sale->saleDetails->map(fn($detail) => [
+                                             'quantity' => $detail->quantity,
+                                             'name' => ($detail->batch->product->name ?? 'Producto') . ' (' . ($detail->batch->supplier->name ?? 'Sin Prov.') . ')',
+                                             'subtotal' => 'S/ ' . number_format($detail->quantity * $detail->unit_price, 2)
+                                         ])
+                                     ]) }}">
                                 Ver Detalles
                             </button>
                         </td>
@@ -163,6 +170,11 @@
                 <!-- Items rendered via JS -->
             </div>
 
+            <div id="receipt-discount-row" class="hidden flex justify-between text-sm text-stock-ok mb-1">
+                <span>Descuento (<span id="receipt-coupon-code" class="uppercase font-semibold"></span>):</span>
+                <span id="receipt-discount"></span>
+            </div>
+
             <div class="border-t border-dashed border-line pt-sm mb-lg shrink-0">
                 <div class="flex justify-between text-lg font-bold text-ink">
                     <span>Total:</span>
@@ -218,6 +230,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('receipt-client').textContent = saleData.client;
             document.getElementById('receipt-date').textContent = saleData.date;
             document.getElementById('receipt-total').textContent = saleData.total;
+            
+            if (saleData.discount_amount) {
+                document.getElementById('receipt-discount-row').classList.remove('hidden');
+                document.getElementById('receipt-coupon-code').textContent = saleData.discount_code || 'Cupón';
+                document.getElementById('receipt-discount').textContent = '-' + saleData.discount_amount;
+            } else {
+                document.getElementById('receipt-discount-row').classList.add('hidden');
+            }
             
             const receiptItems = document.getElementById('receipt-items');
             receiptItems.innerHTML = '';

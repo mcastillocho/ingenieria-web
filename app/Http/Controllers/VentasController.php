@@ -19,7 +19,7 @@ class VentasController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Sale::with(['client', 'worker', 'saleDetails.batch.product', 'saleDetails.batch.supplier']);
+        $query = Sale::with(['client', 'worker', 'saleDetails.batch.product', 'saleDetails.batch.supplier', 'saleDetails.discount']);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -67,6 +67,8 @@ class VentasController extends Controller
             'total_net'          => 'required|numeric|min:0',
             'total_taxes'        => 'required|numeric|min:0',
             'total_amount'       => 'required|numeric|min:0.01',
+            'discount_id'        => 'nullable|exists:discounts,id',
+            'discount_amount'    => 'nullable|numeric|min:0',
         ]);
 
         try {
@@ -127,8 +129,21 @@ class VentasController extends Controller
                 'status'       => 'COMPLETED',
             ]);
 
+            $discountId = $validated['discount_id'] ?? null;
+            $discountAmount = (float) ($validated['discount_amount'] ?? 0.00);
+
+            $totalOriginal = 0;
+            foreach ($validated['items'] as $item) {
+                $totalOriginal += ((int) $item['quantity']) * ((float) $item['price']);
+            }
+
+            $remainingDiscount = $discountAmount;
+            $itemIndex = 0;
+            $totalItems = count($validated['items']);
+
             // Procesar items y descontar stock del lote seleccionado
             foreach ($validated['items'] as $item) {
+                $itemIndex++;
                 $qtyNeeded = (int) $item['quantity'];
                 
                 $batch = Batch::find($item['batch_id']);
@@ -140,15 +155,26 @@ class VentasController extends Controller
                         'message' => 'No hay suficiente stock para el lote con ID: ' . $item['batch_id']
                     ], 400);
                 }
+
+                $itemSubtotal = $qtyNeeded * ((float) $item['price']);
+                $itemDiscount = 0.00;
+                if ($discountAmount > 0 && $totalOriginal > 0) {
+                    if ($itemIndex === $totalItems) {
+                        $itemDiscount = $remainingDiscount;
+                    } else {
+                        $itemDiscount = round(($itemSubtotal / $totalOriginal) * $discountAmount, 2);
+                        $remainingDiscount -= $itemDiscount;
+                    }
+                }
                 
                 // Crear detalle de venta asociando el lote usado
                 SaleDetail::create([
                     'sale_id'         => $sale->id,
                     'batch_id'        => $batch->id,
-                    'discount_id'     => null,
+                    'discount_id'     => $itemDiscount > 0 ? $discountId : null,
                     'quantity'        => $qtyNeeded,
                     'unit_price'      => $item['price'],
-                    'discount_amount' => 0,
+                    'discount_amount' => $itemDiscount > 0 ? $itemDiscount : null,
                     'is_active'       => true,
                 ]);
                 
@@ -173,5 +199,50 @@ class VentasController extends Controller
                 'message' => 'Ocurrió un error al procesar la venta: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function validateDiscount(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'code'         => 'required|string|max:50',
+            'total_amount' => 'required|numeric|min:0.01',
+        ]);
+
+        $discount = \App\Models\Discount::where('code', $validated['code'])->first();
+
+        if (!$discount) {
+            return response()->json(['success' => false, 'message' => 'El código de descuento no existe.'], 404);
+        }
+
+        // 1. Expiración
+        if ($discount->expiration_date->isPast()) {
+            return response()->json(['success' => false, 'message' => 'El código de descuento ha expirado.'], 400);
+        }
+
+        // 2. Límite de uso
+        $useCount = SaleDetail::where('discount_id', $discount->id)->distinct('sale_id')->count();
+        if ($useCount >= $discount->use_limit) {
+            return response()->json(['success' => false, 'message' => 'El código de descuento ha agotado su límite de usos.'], 400);
+        }
+
+        // 3. Monto Mínimo de Compra
+        if ((float) $validated['total_amount'] < (float) $discount->minimum_amount) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'El monto mínimo de compra para este cupón es S/ ' . number_format((float) $discount->minimum_amount, 2)
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'discount' => [
+                'id' => $discount->id,
+                'code' => $discount->code,
+                'type_discount' => $discount->type_discount,
+                'amount' => (float) $discount->amount,
+                'minimum_amount' => (float) $discount->minimum_amount,
+                'maximum_amount' => (float) $discount->maximum_amount,
+            ]
+        ]);
     }
 }

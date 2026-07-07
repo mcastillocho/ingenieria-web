@@ -84,7 +84,6 @@
                         <div class="flex items-center justify-between gap-sm pt-sm border-t border-line">
                             <div class="space-y-1">
                                 <x-ui.price>S/ {{ number_format($featuredProduct->sale_price, 2) }}</x-ui.price>
-                                <x-ui.price variant="previous">S/ {{ number_format($featuredProduct->sale_price * 1.25, 2) }}</x-ui.price>
                             </div>
                             @if($featuredProduct->current_stock == 0)
                                 <x-ui.badge variant="out">Sin stock</x-ui.badge>
@@ -166,7 +165,6 @@
                 <x-slot name="subtitle">{{ $prod['supplier'] }} • {{ $prod['category'] }}</x-slot>
                 <x-slot name="description">{{ $prod['description'] }}</x-slot>
                 <x-slot name="price"><x-ui.price>S/ {{ number_format((float) $prod['sale_price'], 2) }}</x-ui.price></x-slot>
-                <x-slot name="previousPrice">S/ {{ number_format((float) $prod['previous_price'], 2) }}</x-slot>
                 <x-slot name="stockText">Stock: {{ $prod['stock'] }}</x-slot>
                 <x-slot name="stockBadge"><x-ui.badge :variant="$prod['badge_variant']">{{ $prod['badge_text'] }}</x-ui.badge></x-slot>
                 <x-slot name="footer">

@@ -89,6 +89,20 @@
 
         {{-- Totales y Confirmar --}}
         <div class="p-md border-t border-line bg-canvas-alt space-y-sm">
+            {{-- Sección de Cupón --}}
+            <div class="pb-sm border-b border-line border-dashed flex gap-xs items-center">
+                <input type="text" id="coupon-code" placeholder="Código de descuento" 
+                       class="flex-1 text-xs rounded-md border border-line bg-white px-md py-sm text-ink uppercase focus:border-accent focus:ring-2 focus:outline-none" autocomplete="off" />
+                <button type="button" id="btn-apply-coupon" 
+                        class="px-md py-sm bg-accent hover:bg-accent-hover text-white text-xs font-semibold rounded-md transition-colors whitespace-nowrap">
+                    Aplicar
+                </button>
+            </div>
+            <div id="coupon-info" class="hidden text-xs text-stock-ok flex items-center justify-between pb-xs">
+                <span>Descuento aplicado: <strong id="coupon-code-applied" class="uppercase"></strong></span>
+                <button type="button" id="btn-remove-coupon" class="text-stock-out font-bold hover:underline">Quitar</button>
+            </div>
+
             <div class="flex justify-between text-sm text-ink-soft">
                 <span>Subtotal</span>
                 <span id="pos-subtotal">S/ 0.00</span>
@@ -96,6 +110,10 @@
             <div class="flex justify-between text-sm text-ink-soft">
                 <span>IGV (18%)</span>
                 <span id="pos-igv">S/ 0.00</span>
+            </div>
+            <div id="pos-discount-row" class="hidden flex justify-between text-sm text-stock-ok">
+                <span>Descuento</span>
+                <span id="pos-discount">S/ 0.00</span>
             </div>
             <div class="pt-sm border-t border-line border-dashed flex justify-between items-end">
                 <span class="font-bold text-ink">Total a Cobrar</span>
@@ -150,6 +168,11 @@
                 <!-- Items rendered via JS -->
             </div>
 
+            <div id="receipt-discount-row" class="hidden flex justify-between text-sm text-stock-ok mb-1">
+                <span>Descuento (<span id="receipt-coupon-code" class="uppercase"></span>):</span>
+                <span id="receipt-discount"></span>
+            </div>
+
             <div class="border-t border-dashed border-line pt-sm mb-lg shrink-0">
                 <div class="flex justify-between text-lg font-bold text-ink">
                     <span>Total:</span>
@@ -173,6 +196,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ── Estado del Carrito ──
     const cart = new Map(); // productId => { name, price, quantity, maxStock }
+    let appliedDiscount = null;
 
     // ── Elementos DOM ──
     const searchInput = document.getElementById('pos-search');
@@ -310,9 +334,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Cálculos (Asumiendo precios con IGV incluido, desglosamos)
-        // O asumiendo precios netos y sumamos IGV. Elegiremos IGV incluido para simplificar (Total = Subtotal).
-        // Peru IGV is 18%. So Net = Total / 1.18. Tax = Total - Net.
-        const total = totalNet;
+        let discountValue = 0;
+        if (appliedDiscount) {
+            // Verificar si sigue cumpliendo el mínimo de compra
+            if (totalNet < appliedDiscount.minimum_amount) {
+                alert('El cupón ha sido removido porque el monto total es menor al mínimo de S/ ' + appliedDiscount.minimum_amount.toFixed(2));
+                removeCoupon();
+                return;
+            }
+
+            if (appliedDiscount.type_discount === 'PERCENTAGE') {
+                let disc = totalNet * (appliedDiscount.amount / 100);
+                if (appliedDiscount.maximum_amount > 0 && disc > appliedDiscount.maximum_amount) {
+                    disc = appliedDiscount.maximum_amount;
+                }
+                discountValue = disc;
+            } else {
+                discountValue = Math.min(appliedDiscount.amount, totalNet);
+            }
+
+            document.getElementById('coupon-info').classList.remove('hidden');
+            document.getElementById('coupon-code-applied').textContent = appliedDiscount.code;
+            document.getElementById('pos-discount-row').classList.remove('hidden');
+            document.getElementById('pos-discount').textContent = '-' + formatMoney(discountValue);
+            document.getElementById('coupon-code').disabled = true;
+        } else {
+            document.getElementById('coupon-info').classList.add('hidden');
+            document.getElementById('pos-discount-row').classList.add('hidden');
+            document.getElementById('coupon-code').disabled = false;
+        }
+
+        const total = totalNet - discountValue;
         const net = total / 1.18;
         const taxes = total - net;
 
@@ -342,6 +394,63 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    function removeCoupon() {
+        appliedDiscount = null;
+        document.getElementById('coupon-info').classList.add('hidden');
+        document.getElementById('pos-discount-row').classList.add('hidden');
+        document.getElementById('coupon-code').value = '';
+        document.getElementById('coupon-code').disabled = false;
+        updateCartUI();
+    }
+
+    const btnApplyCoupon = document.getElementById('btn-apply-coupon');
+    const inputCoupon = document.getElementById('coupon-code');
+
+    btnApplyCoupon.addEventListener('click', async () => {
+        const code = inputCoupon.value.trim().toUpperCase();
+        if (!code) return;
+
+        let totalOriginal = 0;
+        cart.forEach(item => {
+            totalOriginal += item.price * item.quantity;
+        });
+
+        if (totalOriginal === 0) {
+            alert('Agregue productos al carrito antes de aplicar un cupón');
+            return;
+        }
+
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch('/ventas/validar-descuento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token
+                },
+                body: JSON.stringify({
+                    code: code,
+                    total_amount: totalOriginal
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                appliedDiscount = data.discount;
+                updateCartUI();
+            } else {
+                alert(data.message || 'Error al validar el cupón');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión al validar el cupón');
+        }
+    });
+
+    document.getElementById('btn-remove-coupon').addEventListener('click', removeCoupon);
 
     function updateQuantity(id, change) {
         const item = cart.get(id);
@@ -388,8 +497,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        const net = total / 1.18;
-        const taxes = total - net;
+        let totalOriginal = 0;
+        cart.forEach(item => {
+            totalOriginal += item.price * item.quantity;
+        });
+
+        let discountValue = 0;
+        if (appliedDiscount) {
+            if (appliedDiscount.type_discount === 'PERCENTAGE') {
+                let disc = totalOriginal * (appliedDiscount.amount / 100);
+                if (appliedDiscount.maximum_amount > 0 && disc > appliedDiscount.maximum_amount) {
+                    disc = appliedDiscount.maximum_amount;
+                }
+                discountValue = disc;
+            } else {
+                discountValue = Math.min(appliedDiscount.amount, totalOriginal);
+            }
+        }
+
+        const finalTotal = totalOriginal - discountValue;
+        const net = finalTotal / 1.18;
+        const taxes = finalTotal - net;
 
         let clientId = clientSelect.value;
         let newName = '';
@@ -410,7 +538,9 @@ document.addEventListener('DOMContentLoaded', () => {
             items: items,
             total_net: net.toFixed(2),
             total_taxes: taxes.toFixed(2),
-            total_amount: total.toFixed(2)
+            total_amount: finalTotal.toFixed(2),
+            discount_id: appliedDiscount ? appliedDiscount.id : null,
+            discount_amount: discountValue.toFixed(2)
         };
 
         try {
@@ -441,7 +571,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     receiptItems.appendChild(div);
                 });
                 
-                document.getElementById('receipt-total').textContent = formatMoney(total);
+                if (appliedDiscount) {
+                    document.getElementById('receipt-discount-row').classList.remove('hidden');
+                    document.getElementById('receipt-coupon-code').textContent = appliedDiscount.code;
+                    document.getElementById('receipt-discount').textContent = '-' + formatMoney(discountValue);
+                } else {
+                    document.getElementById('receipt-discount-row').classList.add('hidden');
+                }
+
+                document.getElementById('receipt-total').textContent = formatMoney(finalTotal);
                 
                 // Mostrar Modal
                 const modal = document.getElementById('receipt-modal');

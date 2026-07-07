@@ -54,6 +54,7 @@
                     <x-layout.sidebar-item label="Proveedores"  href="/proveedores"  :active="request()->is('proveedores*')"  iconPath="M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
                     <x-layout.sidebar-item label="Nueva Venta"  href="/ventas/nueva" :active="request()->is('ventas/nueva*')"       iconPath="M3 3h18v18H3V3z M7 14l3-3 2 2 5-5" />
                     <x-layout.sidebar-item label="Historial"    href="/ventas/historial" :active="request()->is('ventas/historial*')" iconPath="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <x-layout.sidebar-item label="Descuentos"   href="/descuentos"   :active="request()->is('descuentos*')"   iconPath="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z M7 7h.01" />
                     @elseif($role === 'logistica')
                     <x-layout.sidebar-item label="Lotes"        href="/lotes"        :active="request()->is('lotes*')"        iconPath="M3 7l8-4 8 4M4 7v10l8 4 8-4V7" />
                     <x-layout.sidebar-item label="Productos"    href="/productos"    :active="request()->is('productos*')"    iconPath="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z M3.27 6.96L12 12.01l8.73-5.05 M12 22.08V12" />

@@ -319,5 +319,41 @@ class InventarioSeeder extends Seeder
                 'updated_at' => now(),
             ]));
         }
+
+        // ── 7. Descuentos ──────────────────────────────────────────────────
+        $discounts = [
+            [
+                'code' => 'AHORRO10',
+                'type_use' => 'MANUAL',
+                'type_discount' => 'PERCENTAGE',
+                'amount' => 10.00,
+                'minimum_amount' => 50.00,
+                'maximum_amount' => 20.00,
+                'expiration_date' => now()->addDays(30),
+                'use_limit' => 100,
+                'type_limit' => 'FOR_SALE',
+            ],
+            [
+                'code' => 'REGALO15',
+                'type_use' => 'MANUAL',
+                'type_discount' => 'AMOUNT',
+                'amount' => 15.00,
+                'minimum_amount' => 80.00,
+                'maximum_amount' => 15.00,
+                'expiration_date' => now()->addDays(30),
+                'use_limit' => 50,
+                'type_limit' => 'FOR_SALE',
+            ]
+        ];
+
+        foreach ($discounts as $discount) {
+            DB::table('discounts')->updateOrInsert(
+                ['code' => $discount['code']],
+                array_merge($discount, [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ])
+            );
+        }
     }
 }

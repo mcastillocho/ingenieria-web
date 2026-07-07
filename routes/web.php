@@ -41,4 +41,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     // Perfil
     Route::get('/perfil',                   [\App\Http\Controllers\ProfileController::class, 'index'])->name('perfil.index');
     Route::post('/perfil/password',         [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('perfil.password');
+
+    // Descuentos
+    Route::get('/descuentos',               [\App\Http\Controllers\DescuentosController::class, 'index'])->name('descuentos.index');
+    Route::post('/descuentos',              [\App\Http\Controllers\DescuentosController::class, 'store'])->name('descuentos.store');
+    Route::put('/descuentos/{discount}',    [\App\Http\Controllers\DescuentosController::class, 'update'])->name('descuentos.update');
+    Route::post('/ventas/validar-descuento', [\App\Http\Controllers\VentasController::class, 'validateDiscount'])->name('ventas.validar-descuento');
 });
