@@ -36,6 +36,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::put('/productos/{producto}',     [ProductosController::class, 'update'])->name('productos.update');
 
     // Ventas
+    Route::get('/ventas/historial',         [\App\Http\Controllers\VentasController::class, 'index'])->name('ventas.historial');
     Route::get('/ventas/nueva',             [\App\Http\Controllers\VentasController::class, 'create'])->name('ventas.create');
     Route::post('/ventas',                  [\App\Http\Controllers\VentasController::class, 'store'])->name('ventas.store');
 });
