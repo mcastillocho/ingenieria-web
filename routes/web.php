@@ -37,4 +37,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::get('/ventas/historial',         [\App\Http\Controllers\VentasController::class, 'index'])->name('ventas.historial');
     Route::get('/ventas/nueva',             [\App\Http\Controllers\VentasController::class, 'create'])->name('ventas.create');
     Route::post('/ventas',                  [\App\Http\Controllers\VentasController::class, 'store'])->name('ventas.store');
+
+    // Perfil
+    Route::get('/perfil',                   [\App\Http\Controllers\ProfileController::class, 'index'])->name('perfil.index');
+    Route::post('/perfil/password',         [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('perfil.password');
 });

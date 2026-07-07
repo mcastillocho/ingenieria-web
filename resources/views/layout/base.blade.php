@@ -32,13 +32,13 @@
                 }
                 @endphp
 
-                <div class="flex items-center gap-sm">
+                <a href="/perfil" class="flex items-center gap-sm hover:opacity-80 transition-opacity cursor-pointer">
                     <div class="text-right">
                         <div class="text-sm font-medium text-ink">{{ $workerTop ? ($workerTop->name . ($workerTop->lastname ? ' ' . $workerTop->lastname : '')) : 'Usuario Demo' }}</div>
                         <div class="text-xs text-muted">{{ $workerTop ? $workerTop->email : 'demo@abad.local' }}</div>
                     </div>
                     <span class="w-8 h-8 rounded-full bg-accent-soft text-accent flex items-center justify-center font-bold text-sm">{{ $initialsTop }}</span>
-                </div>
+                </a>
             </x-slot>
         </x-layout.topbar>
 
