@@ -56,7 +56,7 @@
     </div>
 
     {{-- ── Panel Derecho: Carrito de Compras ── --}}
-    <div class="w-full lg:w-96 flex flex-col min-h-0 bg-surface rounded-xl border border-line shadow-sm overflow-hidden flex-shrink-0 z-10" style="min-height: 400px;">
+    <div class="w-full lg:w-96 flex flex-col min-h-0 bg-surface rounded-xl border border-line shadow-sm overflow-hidden shrink-0 z-10" style="min-height: 400px;">
         
         {{-- Cliente --}}
         <div class="p-md border-b border-line bg-canvas-alt">

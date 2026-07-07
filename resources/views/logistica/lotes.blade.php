@@ -177,7 +177,7 @@
     <div class="flex-1 overflow-y-auto px-lg py-lg">
         <form id="batch-form" method="POST"
               action="{{ route('lotes.store') }}"
-              data-store-url="{{ route('lotes.store') }}"
+              data-store-url="/lotes"
               class="flex flex-col gap-md">
             @csrf
             <input type="hidden" name="_method" id="form-method" value="POST">
@@ -544,7 +544,7 @@
     function resetForm() {
         panelTitle.textContent = 'Nuevo lote';
         btnSubmit.textContent  = 'Guardar lote';
-        form.action    = storeUrl;
+        form.setAttribute('action', storeUrl);
         formMethod.value   = 'POST';
         formBatchId.value  = '';
         inputProduct.value  = '';
@@ -584,7 +584,7 @@
         const id = row.dataset.id;
         panelTitle.textContent = 'Editar lote #' + id;
         btnSubmit.textContent  = 'Actualizar lote';
-        form.action        = storeUrl + '/' + id;
+        form.setAttribute('action', storeUrl + '/' + id);
         formMethod.value   = 'PUT';
         formBatchId.value  = id;
         inputProduct.value  = row.dataset.product;

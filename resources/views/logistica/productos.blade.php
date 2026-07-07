@@ -170,7 +170,7 @@
     <div class="flex-1 overflow-y-auto px-lg py-lg">
         <form id="product-form" method="POST"
               action="{{ route('productos.store') }}"
-              data-store-url="{{ route('productos.store') }}"
+              data-store-url="/productos"
               class="flex flex-col gap-md">
             @csrf
             <input type="hidden" name="_method" id="product-form-method" value="POST">
@@ -321,7 +321,7 @@
     function resetForm() {
         panelTitle.textContent = 'Nuevo producto';
         btnSubmit.textContent  = 'Guardar producto';
-        form.action        = storeUrl;
+        form.setAttribute('action', storeUrl);
         formMethod.value   = 'POST';
         inputCatSelect.value = '';
         inputName.value      = '';
@@ -337,7 +337,7 @@
         const id = row.dataset.id;
         panelTitle.textContent = 'Editar producto #' + id;
         btnSubmit.textContent  = 'Actualizar producto';
-        form.action        = storeUrl + '/' + id;
+        form.setAttribute('action', storeUrl + '/' + id);
         formMethod.value   = 'PUT';
         inputCatSelect.value = row.dataset.category || '';
         inputName.value      = row.dataset.name     || '';

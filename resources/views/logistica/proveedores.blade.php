@@ -175,7 +175,7 @@
     <div class="flex-1 overflow-y-auto px-lg py-lg">
         <form id="supplier-form" method="POST"
               action="{{ route('proveedores.store') }}"
-              data-store-url="{{ route('proveedores.store') }}"
+              data-store-url="/proveedores"
               class="flex flex-col gap-md">
             @csrf
             <input type="hidden" name="_method" id="supplier-form-method" value="POST">
@@ -276,7 +276,7 @@
     function resetForm() {
         panelTitle.textContent = 'Nuevo proveedor';
         btnSubmit.textContent  = 'Guardar proveedor';
-        form.action        = storeUrl;
+        form.setAttribute('action', storeUrl);
         formMethod.value   = 'POST';
         inputName.value    = '';
         inputDocType.value = 'RUC';
@@ -290,7 +290,7 @@
         const id = row.dataset.id;
         panelTitle.textContent = 'Editar proveedor #' + id;
         btnSubmit.textContent  = 'Actualizar proveedor';
-        form.action        = storeUrl + '/' + id;
+        form.setAttribute('action', storeUrl + '/' + id);
         formMethod.value   = 'PUT';
         inputName.value    = row.dataset.name    || '';
         inputDocType.value = row.dataset.documentType  || 'RUC';
