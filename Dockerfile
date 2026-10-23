@@ -36,5 +36,8 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 # 9. Se expone el puerto interno donde escucha PHP-FPM
 EXPOSE 9000
 
-# 10. Comando para arrancar el motor PHP
+# 10. Cambiar al usuario www-data por seguridad (evita que un web shell corra como root)
+USER www-data
+
+# 11. Comando para arrancar el motor PHP
 CMD ["php-fpm"]
