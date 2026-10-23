@@ -1,5 +1,5 @@
 # 1. Usa la imagen de PHP optimizada para FPM
-FROM php:8.3-fpm
+FROM php:8.3.36-fpm
 
 # 2. Se define la carpeta de trabajo dentro del contenedor
 WORKDIR /var/www
